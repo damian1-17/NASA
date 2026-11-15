@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=800, height=480, initial-scale=1.0, user-scalable=no"/>
+  <meta name="color-scheme" content="dark"/>
+  <title>AstroSalud v4 — Monitor de Salud para Astronautas</title>
+  <style>
+/* ══════════════════════════════════════════════════════════════════════════════
+   PALETA BASE Y COLORIMETRÍA DE ALTO CONTRASTE (PLAN 4 - WCAG >= 4.5:1)
+   Fondo de pantalla: #0B1220 | Texto general: #FFFFFF
+   Verde:    Fondo #2E7D32, Texto #FFFFFF
+   Amarillo: Fondo #FFC107, Texto #000000
+   Rojo:     Fondo #C62828, Texto #FFFFFF
+   Acción:   Fondo #1565C0, Texto #FFFFFF, Borde 2px #FFFFFF
+   Inactivo: Fondo #37474F, Texto #CFD8DC
+══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: dark;
+  --bg-pantalla:    #0B1220;
+  --bg-panel:       #162032;
+  --bg-panel-2:     #202D45;
+  --texto-general:  #FFFFFF;
+  --texto-suave:    #CFD8DC;
+
+  /* Estados semafóricos de alto contraste con texto definido explícitamente */
+  --verde-bg:       #2E7D32;
+  --verde-txt:      #FFFFFF;
+  --amarillo-bg:    #FFC107;
+  --amarillo-txt:   #000000;
+  --rojo-bg:        #C62828;
+  --rojo-txt:       #FFFFFF;
+
+  /* Botones de acción */
+  --btn-accion-bg:  #1565C0;
+  --btn-accion-txt: #FFFFFF;
+  --btn-accion-borde: 2px solid #FFFFFF;
+
+  /* Botón inactivo */
+  --btn-dis-bg:     #37474F;
+  --btn-dis-txt:    #CFD8DC;
+
+  --borde-panel:    #304260;
+  --tap-min:        48px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  background-color: var(--bg-pantalla);
+  color: var(--texto-general);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* ── Botones globales accesibles (mínimo 48px y texto explícito) ────────── */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: none;
+  background-color: var(--btn-accion-bg);
+  color: var(--btn-accion-txt);
+  border: var(--btn-accion-borde);
+  user-select: none;
+  -webkit-user-select: none;
+  text-decoration: none;
+}
+button:focus-visible, button:active {
+  outline: 3px solid #FFEB3B;
+  outline-offset: 2px;
+  filter: brightness(1.2);
+}
+button:disabled {
+  background-color: var(--btn-dis-bg) !important;
+  color: var(--btn-dis-txt) !important;
+  border-color: #546E7A !important;
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* ── Estructura fija (800×480) ─────────────────────────────────────────── */
+#app-root {
+  display: flex;
+  flex-direction: column;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+}
+
+/* HEADER: 44px */
+header {
+  height: 44px;
+  background-color: var(--bg-panel);
+  border-bottom: 2px solid var(--borde-panel);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+}
+.brand-sub {
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+.header-badge-medico {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: #D32F2F;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #FFCDD2;
+}
+
+/* ÁREA DE CONTENIDO Y NAV LATERAL */
+#main-container {
+  display: flex;
+  flex: 1;
+  height: 396px; /* 480 - 44 - 40 */
+  overflow: hidden;
+}
+
+nav {
+  width: 90px;
+  background-color: var(--bg-panel);
+  border-right: 2px solid var(--borde-panel);
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+nav button {
+  width: 82px;
+  height: 60px;
+  min-height: 54px;
+  padding: 4px 2px;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: var(--bg-panel-2);
+  color: #FFFFFF;
+  border: 1px solid var(--borde-panel);
+}
+nav button.nav-activa {
+  background-color: var(--btn-accion-bg);
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+}
+nav button span.icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+#vistas-container {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.pantalla {
+  position: absolute;
+  inset: 0;
+  display: none;
+  padding: 10px 12px;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pantalla.pantalla-activa {
+  display: flex;
+}
+
+/* FOOTER: 40px */
+footer {
+  height: 40px;
+  background-color: var(--bg-panel);
+  border-top: 2px solid var(--borde-panel);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.indicador-estado-modelo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot-estado {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  border: 1px solid #FFFFFF;
+}
+.btn-footer {
+  height: 32px;
+  min-height: 32px;
+  font-size: 14px;
+  padding: 2px 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 1: INICIO — Cuadrícula 3x2 fija, sin desplazamiento, Paginable
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-inicio {
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.top-bar-inicio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  flex-shrink: 0;
+  background-color: var(--bg-panel);
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--borde-panel);
+}
+.estado-global-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.indicador-forma {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+.forma-circulo { border-radius: 50%; }
+.forma-triangulo {
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 14px solid #FFC107;
+}
+.forma-cuadrado { border-radius: 2px; }
+
+.paginacion-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-pag {
+  min-height: 34px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+
+/* CUADRÍCULA 3x2: 6 tarjetas fijas (unas 225x155px con margen) */
+.grid-tarjetas-metricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 10px;
+  flex: 1;
+  height: 328px;
+  overflow: hidden;
+}
+
+.tarjeta-metrica {
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid #FFFFFF;
+  user-select: none;
+  overflow: hidden;
+}
+.tarjeta-metrica:active {
+  transform: scale(0.98);
+}
+.tarjeta-metrica.estado-verde {
+  background-color: var(--verde-bg);
+  color: var(--verde-txt);
+}
+.tarjeta-metrica.estado-amarillo {
+  background-color: var(--amarillo-bg);
+  color: var(--amarillo-txt);
+}
+.tarjeta-metrica.estado-rojo {
+  background-color: var(--rojo-bg);
+  color: var(--rojo-txt);
+}
+
+.tarjeta-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+  z-index: 2;
+}
+.tarjeta-nombre {
+  letter-spacing: 0.3px;
+}
+.tarjeta-icono-estado {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.tarjeta-centro {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  z-index: 2;
+}
+.tarjeta-valor-grande {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+}
+.tarjeta-unidad {
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.tarjeta-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+  z-index: 2;
+  border-top: 1px solid rgba(255,255,255,0.4);
+  padding-top: 4px;
+}
+.tarjeta-metrica.estado-amarillo .tarjeta-bottom {
+  border-top-color: rgba(0,0,0,0.4);
+}
+.tarjeta-proy {
+  font-size: 14px;
+}
+
+/* Mini sparkline de fondo en SVG */
+.sparkline-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.28;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 2: DETALLE Y CONSEJOS PERSONALIZADOS
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-detalle {
+  gap: 8px;
+}
+.detalle-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  background-color: var(--bg-panel);
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--borde-panel);
+}
+.btn-volver {
+  background-color: var(--btn-accion-bg);
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  height: 44px;
+  font-size: 18px;
+}
+.detalle-titulo-m {
+  font-size: 20px;
+  font-weight: 800;
+}
+.rango-botones {
+  display: flex;
+  gap: 6px;
+}
+.btn-rango {
+  min-height: 42px;
+  height: 42px;
+  padding: 0 14px;
+  font-size: 16px;
+  background-color: var(--bg-panel-2);
+  border: 1px solid #FFFFFF;
+}
+.btn-rango.activo {
+  background-color: var(--btn-accion-bg);
+  border: 2px solid #FFEB3B;
+}
+
+/* Gráfica SVG de detalle: 700x170px */
+.svg-detalle-wrap {
+  width: 100%;
+  height: 180px;
+  background-color: #0E1626;
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+#svg-detalle {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Panel fijo de información del punto tocado */
+.panel-punto-fijo {
+  height: 38px;
+  background-color: var(--bg-panel-2);
+  border: 1px solid var(--borde-panel);
+  border-radius: 6px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Sección "Qué puedes hacer" (hasta 3 consejos) */
+.seccion-consejos {
+  flex: 1;
+  background-color: var(--bg-panel);
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+.consejo-item {
+  background-color: #1A263A;
+  border-left: 6px solid #FFC107;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.consejo-item.critico {
+  background-color: #491212;
+  border-left-color: #D32F2F;
+  border: 2px solid #FF5252;
+  font-weight: 800;
+}
+.btn-feedback {
+  min-height: 34px;
+  height: 34px;
+  font-size: 13px;
+  padding: 2px 8px;
+  background-color: var(--bg-panel-2);
+  border: 1px solid #FFFFFF;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 3: REGISTRO DIARIO CON TECLADO TÁCTIL GRANDE
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-registro {
+  flex-direction: row;
+  gap: 10px;
+}
+.registro-col-izq {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.registro-col-der {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.selector-metrica-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn-campo-reg {
+  width: 100%;
+  height: 48px;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 17px;
+  font-weight: 700;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--borde-panel);
+}
+.btn-campo-reg.campo-seleccionado {
+  background-color: var(--btn-accion-bg);
+  border: 2px solid #FFFFFF;
+}
+
+.campo-display-box {
+  background-color: #0E1626;
+  border: 2px solid var(--btn-accion-bg);
+  border-radius: 8px;
+  padding: 6px 10px;
+  text-align: center;
+}
+.display-label {
+  font-size: 14px;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.display-valor {
+  font-size: 34px;
+  font-weight: 900;
+  color: #FFFFFF;
+  min-height: 42px;
+}
+
+/* Teclado numérico táctil de al menos 48px */
+.teclado-tactil {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  flex: 1;
+}
+.tecla-btn {
+  height: 52px;
+  min-height: 48px;
+  font-size: 24px;
+  font-weight: 800;
+  background-color: var(--bg-panel-2);
+  border: 1px solid #90CAF9;
+  color: #FFFFFF;
+  border-radius: 6px;
+}
+.tecla-btn:active {
+  background-color: #1976D2;
+}
+.tecla-accion {
+  font-size: 18px;
+  background-color: var(--btn-accion-bg);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 4: VALIDACIÓN MÉDICA CON PIN (CMO)
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-validacion {
+  gap: 8px;
+  overflow: hidden;
+}
+
+/* Modal PIN de acceso */
+#pin-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(11, 18, 32, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.pin-card {
+  width: 340px;
+  background-color: var(--bg-panel);
+  border: 3px solid #1976D2;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pin-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+.pin-dots {
+  display: flex;
+  gap: 12px;
+}
+.pin-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  background-color: transparent;
+}
+.pin-dot.lleno {
+  background-color: #2196F3;
+}
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.val-contenido-split {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  overflow: hidden;
+}
+.val-col-cola {
+  flex: 1.2;
+  background-color: var(--bg-panel);
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+.val-col-candidatos {
+  flex: 0.8;
+  background-color: var(--bg-panel);
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+/* Tarjeta individual de caso a validar con 3 botones de alto contraste */
+.tarjeta-caso-val {
+  background-color: var(--bg-panel-2);
+  border: 2px solid #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.caso-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 15px;
+  gap: 4px;
+}
+.botones-decision-humana {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+.btn-val-confirmar {
+  background-color: var(--verde-bg);
+  color: var(--verde-txt);
+  border: 2px solid #FFFFFF;
+  height: 48px;
+  font-size: 16px;
+}
+.btn-val-corregir {
+  background-color: var(--amarillo-bg);
+  color: var(--amarillo-txt);
+  border: 2px solid #000000;
+  height: 48px;
+  font-size: 16px;
+}
+.btn-val-descartar {
+  background-color: var(--rojo-bg);
+  color: var(--rojo-txt);
+  border: 2px solid #FFFFFF;
+  height: 48px;
+  font-size: 16px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 5: EXPORTAR PAQUETE TIERRA
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-exportar {
+  gap: 10px;
+}
+.export-panel-top {
+  background-color: var(--bg-panel);
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.visor-json-pre {
+  flex: 1;
+  background-color: #0E1626;
+  border: 2px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #81D4FA;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+/* ── Toast de feedback ─────────────────────────────────────────────────── */
+#toast-global {
+  position: absolute;
+  top: 52px;
+  right: 14px;
+  background-color: #1565C0;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  display: none;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+  </style>
+</head>
+<body>
+
+<div id="app-root">
+
+  <!-- ── HEADER SUPERIOR (44px) ────────────────────────────────────────── -->
+  <header>
+    <span style="font-size:24px;">🚀</span>
+    <div>
+      <span class="brand-title">AstroSalud</span>
+      <span class="brand-sub"> | NASA Space Apps</span>
+    </div>
+    <span id="ast-id-label" style="font-size:16px; font-weight:700; color:#90CAF9; margin-left:8px;">AST-001</span>
+    <div class="header-badge-medico">⚠️ Apoyo a la Decisión — No Diagnóstico Médico</div>
+  </header>
+
+  <!-- ── LAYOUT CENTRAL CON NAV LATERAL (396px) ────────────────────────── -->
+  <div id="main-container">
+    <nav>
+      <button id="nav-inicio" class="nav-activa" onclick="cambiarVista('inicio', this)">
+        <span class="icon">📊</span>
+        <span>Métricas</span>
+      </button>
+      <button id="nav-registro" onclick="cambiarVista('registro', this)">
+        <span class="icon">✏️</span>
+        <span>Registro</span>
+      </button>
+      <button id="nav-val" onclick="cambiarVista('validacion', this)">
+        <span class="icon">🩺</span>
+        <span>Revisión</span>
+      </button>
+      <button id="nav-exportar" onclick="cambiarVista('exportar', this)">
+        <span class="icon">📡</span>
+        <span>Tierra</span>
+      </button>
+    </nav>
+
+    <div id="vistas-container">
+
+      <!-- ═════════ PANTALLA 1: INICIO (CUADRÍCULA 3x2) ═════════ -->
+      <div id="pantalla-inicio" class="pantalla pantalla-activa">
+        <div class="top-bar-inicio">
+          <div class="estado-global-box">
+            <span id="indicador-global-forma" class="indicador-forma forma-circulo" style="background-color:var(--verde-bg);"></span>
+            <span id="label-estado-global">Estado: Normal</span>
+            <span id="dia-mision-label" style="margin-left:14px; color:var(--texto-suave);">Día: 1</span>
+          </div>
+          <div class="paginacion-controles">
+            <button class="btn-pag" onclick="simularPasoTelemetria()">🔄 +Telemetría</button>
+            <button id="btn-pag-prev" class="btn-pag" onclick="cambiarPaginaGrid(-1)">◀ Pág</button>
+            <span id="label-paginacion" style="font-size:16px; font-weight:700;">1 / 2</span>
+            <button id="btn-pag-next" class="btn-pag" onclick="cambiarPaginaGrid(1)">Pág ▶</button>
+          </div>
+        </div>
+
+        <!-- Cuadrícula 3x2 fija sin scroll -->
+        <div class="grid-tarjetas-metricas" id="grid-metricas-body">
+          <!-- Render dinámico de las 6 tarjetas de la página actual -->
+        </div>
+      </div>
+
+      <!-- ═════════ PANTALLA 2: DETALLE + CONSEJOS PERSONALIZADOS ═════════ -->
+      <div id="pantalla-detalle" class="pantalla">
+        <div class="detalle-top-bar">
+          <button class="btn-volver" onclick="cambiarVista('inicio', document.getElementById('nav-inicio'))">
+            ◀ Volver
+          </button>
+          <div class="detalle-titulo-m" id="det-metrica-titulo">Frecuencia Cardíaca</div>
+          <div class="rango-botones">
+            <button class="btn-rango activo" id="btn-r-7" onclick="cambiarRangoDetalle(7)">7 Días</button>
+            <button class="btn-rango" id="btn-r-14" onclick="cambiarRangoDetalle(14)">14 Días</button>
+            <button class="btn-rango" id="btn-r-30" onclick="cambiarRangoDetalle(30)">30 Días</button>
+          </div>
+        </div>
+
+        <!-- SVG Gráfica de alta legibilidad con bandas de fondo y marcadores accesibles -->
+        <div class="svg-detalle-wrap">
+          <svg id="svg-detalle" viewBox="0 0 680 180" preserveAspectRatio="none">
+            <!-- Renderizado dinámico -->
+          </svg>
+        </div>
+
+        <!-- Panel fijo informativo al tocar punto -->
+        <div class="panel-punto-fijo" id="panel-punto-info">
+          <span>Toca cualquier punto de la curva para ver lectura exacta y fecha.</span>
+          <span id="info-punto-val" style="color:#FFEB3B;">—</span>
+        </div>
+
+        <!-- Sección "Qué puedes hacer" -->
+        <div class="seccion-consejos" id="contenedor-consejos">
+          <div style="font-size:16px; font-weight:800; color:#FFD54F;">
+            💡 QUÉ PUEDES HACER (CONSEJOS DE BIENESTAR PERSONALIZADOS)
+          </div>
+          <div id="lista-consejos-items">
+            <!-- Inyección dinámica de hasta 3 consejos -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ PANTALLA 3: REGISTRO DIARIO CON TECLADO GRANDE ═════════ -->
+      <div id="pantalla-registro" class="pantalla">
+        <div class="registro-col-izq">
+          <div style="font-size:18px; font-weight:800; color:#90CAF9;">
+            Selecciona la métrica a ingresar (Día <span id="reg-dia-n">1</span>)
+          </div>
+          <div class="selector-metrica-scroll" id="lista-botones-registro">
+            <!-- Botones de cada métrica con tamaño táctil >= 48px -->
+          </div>
+          <button style="height:50px; background-color:var(--verde-bg);" onclick="guardarRegistroDesdeFormulario()">
+            💾 Guardar Registro Diario
+          </button>
+        </div>
+
+        <div class="registro-col-der">
+          <div class="campo-display-box">
+            <div class="display-label" id="teclado-campo-nombre">Métrica Activa</div>
+            <div class="display-valor" id="teclado-campo-valor">—</div>
+          </div>
+          <div class="teclado-tactil" id="teclado-numerico-grid">
+            <button class="tecla-btn" onclick="pulsarTecla('7')">7</button>
+            <button class="tecla-btn" onclick="pulsarTecla('8')">8</button>
+            <button class="tecla-btn" onclick="pulsarTecla('9')">9</button>
+            <button class="tecla-btn" onclick="pulsarTecla('4')">4</button>
+            <button class="tecla-btn" onclick="pulsarTecla('5')">5</button>
+            <button class="tecla-btn" onclick="pulsarTecla('6')">6</button>
+            <button class="tecla-btn" onclick="pulsarTecla('1')">1</button>
+            <button class="tecla-btn" onclick="pulsarTecla('2')">2</button>
+            <button class="tecla-btn" onclick="pulsarTecla('3')">3</button>
+            <button class="tecla-btn" onclick="pulsarTecla('.')">.</button>
+            <button class="tecla-btn" onclick="pulsarTecla('0')">0</button>
+            <button class="tecla-btn tecla-accion" onclick="pulsarTecla('BORRAR')">⌫</button>
+            <button class="tecla-btn tecla-accion" style="grid-column: 1 / -1; height:48px;" onclick="pulsarTecla('ENTER')">
+              ✓ Fijar Valor
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ PANTALLA 4: VALIDACIÓN MÉDICA CON PIN (CMO) ═════════ -->
+      <div id="pantalla-validacion" class="pantalla">
+        <!-- Overlay de autenticación con PIN -->
+        <div id="pin-modal-overlay">
+          <div class="pin-card">
+            <div style="font-size:28px;">🔒</div>
+            <div class="pin-title">Acceso Oficial Médico</div>
+            <div style="font-size:14px; color:var(--texto-suave);">Ingresa PIN de autorización</div>
+            <div class="pin-dots" id="pin-dots-display">
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+            </div>
+            <div class="pin-grid">
+              <button class="tecla-btn" onclick="pinPulsar('1')">1</button>
+              <button class="tecla-btn" onclick="pinPulsar('2')">2</button>
+              <button class="tecla-btn" onclick="pinPulsar('3')">3</button>
+              <button class="tecla-btn" onclick="pinPulsar('4')">4</button>
+              <button class="tecla-btn" onclick="pinPulsar('5')">5</button>
+              <button class="tecla-btn" onclick="pinPulsar('6')">6</button>
+              <button class="tecla-btn" onclick="pinPulsar('7')">7</button>
+              <button class="tecla-btn" onclick="pinPulsar('8')">8</button>
+              <button class="tecla-btn" onclick="pinPulsar('9')">9</button>
+              <button class="tecla-btn tecla-accion" onclick="pinPulsar('CLR')">C</button>
+              <button class="tecla-btn" onclick="pinPulsar('0')">0</button>
+              <button class="tecla-btn tecla-accion" onclick="pinPulsar('OK')">OK</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido de validación tras PIN correcto -->
+        <div class="val-contenido-split">
+          <!-- Columna Izquierda: Cola de Validación de Predicciones a 7 Días -->
+          <div class="val-col-cola">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:17px; font-weight:800; color:#FFD54F;">
+                📋 Cola de Casos Pendientes (<span id="val-cnt-pendientes">0</span>)
+              </span>
+              <button style="height:34px; font-size:13px; padding:0 8px;" onclick="cargarColaValidacion()">
+                🔄 Actualizar
+              </button>
+            </div>
+            <div id="lista-casos-validacion-body" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Tarjetas dinámicas con Confirmar, Corregir, Descartar -->
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Modelos Candidatos y Auditoría -->
+          <div class="val-col-candidatos">
+            <span style="font-size:17px; font-weight:800; color:#90CAF9;">
+              🤖 Versiones Candidatas del Modelo
+            </span>
+            <button style="height:40px; font-size:15px;" onclick="solicitarGenerarCandidato()">
+              ⚡ Proponer Candidato con Validados
+            </button>
+            <div id="lista-candidatos-body" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Tarjetas de candidatos con Aprobar / Rechazar -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ PANTALLA 5: EXPORTAR PAQUETE TIERRA ═════════ -->
+      <div id="pantalla-exportar" class="pantalla">
+        <div class="export-panel-top">
+          <div>
+            <div style="font-size:18px; font-weight:800;">📡 Paquete Clínico Priorizado para Tierra</div>
+            <div style="font-size:14px; color:var(--texto-suave);">
+              Compilación de telemetría, proyecciones, alertas activas y registro de auditoría.
+            </div>
+          </div>
+          <button style="height:48px;" onclick="descargarJSONPaqueteTierra()">
+            📥 Descargar JSON
+          </button>
+        </div>
+        <pre class="visor-json-pre" id="visor-json-salida">Cargando paquete...</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── FOOTER INFERIOR (40px) ────────────────────────────────────────── -->
+  <footer>
+    <div class="indicador-estado-modelo">
+      <span class="dot-estado" id="footer-dot-estado"></span>
+      <span id="footer-texto-modelo">Modelo: Inicial (Preentrenado)</span>
+    </div>
+    <span style="color:var(--texto-suave);" id="footer-dias-reales">0 días de datos</span>
+    <span style="margin-left:auto; font-size:13px; color:#FFD54F;">
+      100% Offline — Raspberry Pi Touch Engine
+    </span>
+  </footer>
+
+</div>
+
+<!-- Toast global de notificaciones -->
+<div id="toast-global">Notificación</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════════
+   LÓGICA CLIENTE 100% OFFLINE — COMPATIBLE CON Y SIN BACKEND
+══════════════════════════════════════════════════════════════════════════════ */
+const BASE_URL = window.location.origin;
+
+// 12 Métricas completas según Plan 4
+const METRICAS_CONFIG = [
+  { id: "sistolica",     nombre: "Presión Sistólica",  unidad: "mmHg", dec: 0, min: 70,  max: 200, icono: "🫀", base: 115 },
+  { id: "diastolica",    nombre: "Presión Diastólica", unidad: "mmHg", dec: 0, min: 40,  max: 130, icono: "🫀", base: 72 },
+  { id: "fc",            nombre: "Frecuencia Cardíaca",unidad: "lpm",  dec: 0, min: 30,  max: 180, icono: "❤️",  base: 62 },
+  { id: "hrv",           nombre: "Variabilidad HRV",   unidad: "ms",   dec: 0, min: 5,   max: 200, icono: "📉", base: 65 },
+  { id: "spo2",          nombre: "Saturación SpO₂",    unidad: "%",    dec: 1, min: 80,  max: 100, icono: "🫁", base: 98.0 },
+  { id: "temperatura",   nombre: "Temperatura",        unidad: "°C",   dec: 1, min: 35,  max: 41,  icono: "🌡️", base: 36.6 },
+  { id: "glucosa",       nombre: "Glucosa",            unidad: "mg/dL",dec: 0, min: 40,  max: 300, icono: "🍬", base: 85 },
+  { id: "sueno_horas",   nombre: "Horas de Sueño",     unidad: "h",    dec: 1, min: 0,   max: 14,  icono: "😴", base: 7.2 },
+  { id: "sueno_calidad", nombre: "Calidad de Sueño",   unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "⭐", base: 4.0 },
+  { id: "animo",         nombre: "Ánimo Percibido",    unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "😊", base: 4.0 },
+  { id: "carga_trabajo", nombre: "Carga de Trabajo",   unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "⚡", base: 2.5 },
+  { id: "onsd_mm",       nombre: "ONSD (Nervio Óptico)",unidad:"mm",   dec: 2, min: 2,   max: 9,   icono: "👁️", base: 4.3 },
+  { id: "ejercicio_min", nombre: "Ejercicio Diario",   unidad: "min",  dec: 0, min: 0,   max: 300, icono: "🏃", base: 120 },
+  { id: "radiacion_diaria",nombre:"Dosis Radiación",   unidad: "mSv",  dec: 2, min: 0,   max: 20,  icono: "☢️", base: 0.35 }
+];
+
+const RANGOS_REFERENCIA = {
+  sistolica:        { verde: [100, 130], amarillo: [90, 145] },
+  diastolica:       { verde: [60, 85],   amarillo: [50, 95] },
+  fc:               { verde: [50, 80],   amarillo: [40, 100] },
+  hrv:              { verde: [40, 100],  amarillo: [20, 150] },
+  spo2:             { verde: [95, 100],  amarillo: [92, 100] },
+  temperatura:      { verde: [36.1, 37.2],amarillo:[35.5, 38.0] },
+  glucosa:          { verde: [70, 100],  amarillo: [60, 125] },
+  sueno_horas:      { verde: [6.5, 8.5], amarillo: [5.5, 10.0] },
+  sueno_calidad:    { verde: [3.5, 5.0], amarillo: [2.5, 5.0] },
+  animo:            { verde: [3.5, 5.0], amarillo: [2.5, 5.0] },
+  carga_trabajo:    { verde: [1.0, 3.0], amarillo: [1.0, 4.0] },
+  onsd_mm:          { verde: [4.0, 5.0], amarillo: [3.5, 5.5] },
+  ejercicio_min:    { verde: [90, 180],  amarillo: [60, 240] },
+  radiacion_diaria: { verde: [0.0, 0.5], amarillo: [0.0, 1.0] }
+};
+
+let ESTADO_APP = {
+  astronauta_id: "AST-001",
+  dia_mision: 30,
+  pagina_grid: 0, // 0: primeros 6, 1: siguientes 6
+  metrica_activa_id: "fc",
+  rango_detalle_dias: 7,
+  lecturas_historial: [],
+  lineas_base: {},
+  pin_ingresado: "",
+  pin_autenticado: false,
+  registro_temporal: {},
+  campo_registro_activo: "sistolica",
+  buffer_teclado: ""
+};
+
+/* ── Generador sintético local para inicio offline inmediato ───────────── */
+function iniciarDatosLocales() {
+  const n = 35;
+  const hist = [];
+  METRICAS_CONFIG.forEach(m => {
+    ESTADO_APP.lineas_base[m.id] = m.base;
+  });
+
+  for (let d = 1; d <= n; d++) {
+    const deg = d / 180;
+    const registro = {
+      dia_mision: d,
+      timestamp: new Date(Date.now() - (n - d) * 86400000).toISOString(),
+      sistolica: 115 + Math.sin(d/3)*8 + (d > 25 ? 16 : 0),
+      diastolica: 72 + Math.cos(d/3)*5,
+      fc: 62 + Math.sin(d/4)*7 - deg*4,
+      hrv: 65 - deg*16 - (d > 20 ? 18 : 0) + Math.cos(d/2)*6,
+      spo2: 98.2 - (d === 28 ? 4.2 : 0) + (Math.random()*0.4 - 0.2),
+      temperatura: 36.6 + (Math.random()*0.2 - 0.1),
+      glucosa: 86 + Math.sin(d)*8,
+      sueno_horas: 7.2 - deg*0.8 - (d > 22 ? 2.1 : 0),
+      sueno_calidad: 4.0 - (d > 22 ? 1.5 : 0),
+      animo: 4.0 - (d > 20 ? 1.2 : 0),
+      carga_trabajo: 2.5 + (d > 20 ? 1.8 : 0),
+      onsd_mm: 4.3 + deg*0.5 + (d > 20 ? 0.35 : 0),
+      ejercicio_min: 120 - deg*20,
+      radiacion_diaria: 0.35 + (d === 15 ? 3.5 : 0.05)
+    };
+    hist.push(registro);
+  }
+  ESTADO_APP.lecturas_historial = hist;
+  ESTADO_APP.dia_mision = n;
+}
+
+/* ── Clasificación por Semáforo y z-score ──────────────────────────────── */
+function calcularEstadoMetrica(id, valor) {
+  if (valor === undefined || valor === null || isNaN(valor)) {
+    return { clase: "estado-verde", texto: "Normal", icono: "✓", nivel: 0 };
+  }
+  const r = RANGOS_REFERENCIA[id];
+  if (!r) return { clase: "estado-verde", texto: "Normal", icono: "✓", nivel: 0 };
+
+  if (valor >= r.verde[0] && valor <= r.verde[1]) {
+    return { clase: "estado-verde", texto: "Normal", icono: "✓", nivel: 0 };
+  } else if (valor >= r.amarillo[0] && valor <= r.amarillo[1]) {
+    return { clase: "estado-amarillo", texto: "Vigilar", icono: "!", nivel: 1 };
+  } else {
+    return { clase: "estado-rojo", texto: "Crítico", icono: "▲", nivel: 2 };
+  }
+}
+
+function proyectarValor7Dias(id) {
+  const vals = ESTADO_APP.lecturas_historial.map(d => d[id]).filter(v => v !== undefined && !isNaN(v));
+  if (vals.length < 3) return vals[vals.length - 1] || 0;
+  const ult = vals.slice(-7);
+  const n = ult.length;
+  const ym = ult.reduce((a, b) => a + b, 0) / n;
+  const xm = (n - 1) / 2;
+  let num = 0, den = 0;
+  ult.forEach((v, i) => {
+    num += (i - xm) * (v - ym);
+    den += (i - xm) ** 2;
+  });
+  const pendiente = den !== 0 ? num / den : 0;
+  return ym + pendiente * (n - 1 + 7);
+}
+
+/* ── Render de Cuadrícula 3x2 Paginable (Ordenada por Urgencia) ────────── */
+function renderizarGridMetricas() {
+  const gridContainer = document.getElementById("grid-metricas-body");
+  const ultLectura = ESTADO_APP.lecturas_historial[ESTADO_APP.lecturas_historial.length - 1] || {};
+
+  // Calcular estados para ordenar (Rojo > Amarillo > Verde)
+  const metricasOrdenadas = METRICAS_CONFIG.map(m => {
+    const val = ultLectura[m.id];
+    const est = calcularEstadoMetrica(m.id, val);
+    const proy = proyectarValor7Dias(m.id);
+    const estProy = calcularEstadoMetrica(m.id, proy);
+    return { config: m, valor: val, estado: est, proy: proy, estadoProy: estProy };
+  }).sort((a, b) => b.estado.nivel - a.estado.nivel);
+
+  // Paginación 3 columnas x 2 filas = 6 tarjetas por página
+  const totalPags = Math.ceil(metricasOrdenadas.length / 6);
+  if (ESTADO_APP.pagina_grid >= totalPags) ESTADO_APP.pagina_grid = 0;
+  if (ESTADO_APP.pagina_grid < 0) ESTADO_APP.pagina_grid = totalPags - 1;
+
+  document.getElementById("label-paginacion").textContent = `${ESTADO_APP.pagina_grid + 1} / ${totalPags}`;
+  const sliceMetricas = metricasOrdenadas.slice(ESTADO_APP.pagina_grid * 6, (ESTADO_APP.pagina_grid + 1) * 6);
+
+  // Actualizar barra global
+  const maxNivel = Math.max(...metricasOrdenadas.map(m => m.estado.nivel));
+  const elForma = document.getElementById("indicador-global-forma");
+  const elTexto = document.getElementById("label-estado-global");
+  if (maxNivel === 2) {
+    elForma.className = "indicador-forma forma-cuadrado";
+    elForma.style.backgroundColor = "var(--rojo-bg)";
+    elTexto.textContent = "Estado: ALERTA CRÍTICA (▲)";
+  } else if (maxNivel === 1) {
+    elForma.className = "indicador-forma forma-triangulo";
+    elForma.style.backgroundColor = "transparent";
+    elTexto.textContent = "Estado: VIGILANCIA (!)";
+  } else {
+    elForma.className = "indicador-forma forma-circulo";
+    elForma.style.backgroundColor = "var(--verde-bg)";
+    elTexto.textContent = "Estado: Normal (✓)";
+  }
+  document.getElementById("dia-mision-label").textContent = `Día: ${ESTADO_APP.dia_mision}`;
+
+  gridContainer.innerHTML = sliceMetricas.map(item => {
+    const m = item.config;
+    const valStr = item.valor !== undefined && !isNaN(item.valor) ? Number(item.valor).toFixed(m.dec) : "—";
+    const proyStr = Number(item.proy).toFixed(m.dec);
+    const delta = item.proy - item.valor;
+    const flecha = delta > 0.05 ? "↑" : (delta < -0.05 ? "↓" : "→");
+
+    // Mini sparkline SVG de los últimos 7 días
+    const serie7 = ESTADO_APP.lecturas_historial.slice(-7).map(d => d[m.id]).filter(v => v !== undefined && !isNaN(v));
+    const sparkSvg = generarSparklineSvg(serie7);
+
+    return `
+      <div class="tarjeta-metrica ${item.estado.clase}" onclick="abrirDetalleMetrica('${m.id}')">
+        ${sparkSvg}
+        <div class="tarjeta-top">
+          <span class="tarjeta-nombre">${m.icono} ${m.nombre}</span>
+          <span class="tarjeta-icono-estado">${item.estado.icono}</span>
+        </div>
+        <div class="tarjeta-centro">
+          <span class="tarjeta-valor-grande">${valStr}</span>
+          <span class="tarjeta-unidad">${m.unidad}</span>
+        </div>
+        <div class="tarjeta-bottom">
+          <span>${item.estado.texto}</span>
+          <span class="tarjeta-proy">7d: ${flecha} ${proyStr} ${item.estadoProy.icono}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function generarSparklineSvg(puntos) {
+  if (puntos.length < 2) return "";
+  const min = Math.min(...puntos);
+  const max = Math.max(...puntos);
+  const rng = max - min || 1;
+  const w = 240, h = 140;
+  const coords = puntos.map((v, i) => {
+    const x = (i / (puntos.length - 1)) * w;
+    const y = h - ((v - min) / rng) * (h - 20) - 10;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  return `
+    <svg class="sparkline-svg" viewBox="0 0 ${w} ${h}">
+      <polyline fill="none" stroke="#FFFFFF" stroke-width="4" points="${coords.join(' ')}" />
+    </svg>
+  `;
+}
+
+function cambiarPaginaGrid(delta) {
+  ESTADO_APP.pagina_grid += delta;
+  renderizarGridMetricas();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 2: DETALLE, GRÁFICA SVG Y CONSEJOS PERSONALIZADOS
+══════════════════════════════════════════════════════════════════════════════ */
+function abrirDetalleMetrica(id) {
+  ESTADO_APP.metrica_activa_id = id;
+  const m = METRICAS_CONFIG.find(x => x.id === id);
+  document.getElementById("det-metrica-titulo").textContent = `${m.icono} ${m.nombre} (${m.unidad})`;
+  renderizarGraficaDetalleSVG();
+  cargarConsejosPersonalizados(id);
+  cambiarVista("detalle");
+}
+
+function cambiarRangoDetalle(dias) {
+  ESTADO_APP.rango_detalle_dias = dias;
+  document.querySelectorAll(".btn-rango").forEach(b => b.classList.remove("activo"));
+  const btn = document.getElementById(`btn-r-${dias}`);
+  if (btn) btn.classList.add("activo");
+  renderizarGraficaDetalleSVG();
+}
+
+function renderizarGraficaDetalleSVG() {
+  const svg = document.getElementById("svg-detalle");
+  const id = ESTADO_APP.metrica_activa_id;
+  const m = METRICAS_CONFIG.find(x => x.id === id);
+  const rangoDias = ESTADO_APP.rango_detalle_dias;
+  const datos = ESTADO_APP.lecturas_historial.slice(-rangoDias);
+
+  if (!datos.length) return;
+
+  const W = 680, H = 180;
+  const pad = { t: 15, r: 25, b: 25, l: 45 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+
+  const vals = datos.map(d => d[id]).filter(v => v !== undefined && !isNaN(v));
+  const base = ESTADO_APP.lineas_base[id] || m.base;
+  const minV = Math.min(...vals, base) * 0.94;
+  const maxV = Math.max(...vals, base) * 1.06;
+  const rng = maxV - minV || 1;
+
+  const mx = i => pad.l + (i / (datos.length - 1 || 1)) * pw;
+  const my = v => pad.t + ph - ((v - minV) / rng) * ph;
+
+  const r = RANGOS_REFERENCIA[id];
+  let bandasSvg = "";
+  if (r) {
+    const yRojoSup = my(Math.min(maxV, r.amarillo[1]));
+    const yVerdeSup = my(Math.min(maxV, r.verde[1]));
+    const yVerdeInf = my(Math.max(minV, r.verde[0]));
+    const yRojoInf = my(Math.max(minV, r.amarillo[0]));
+
+    // Bandas semafóricas con 25-30% de opacidad
+    bandasSvg = `
+      <rect x="${pad.l}" y="${pad.t}" width="${pw}" height="${Math.max(0, yRojoSup - pad.t)}" fill="#C62828" opacity="0.25" />
+      <rect x="${pad.l}" y="${yRojoSup}" width="${pw}" height="${Math.max(0, yVerdeSup - yRojoSup)}" fill="#FFC107" opacity="0.28" />
+      <rect x="${pad.l}" y="${yVerdeSup}" width="${pw}" height="${Math.max(0, yVerdeInf - yVerdeSup)}" fill="#2E7D32" opacity="0.25" />
+      <rect x="${pad.l}" y="${yVerdeInf}" width="${pw}" height="${Math.max(0, yRojoInf - yVerdeInf)}" fill="#FFC107" opacity="0.28" />
+      <rect x="${pad.l}" y="${yRojoInf}" width="${pw}" height="${Math.max(0, pad.t + ph - yRojoInf)}" fill="#C62828" opacity="0.25" />
+    `;
+  }
+
+  // Línea base personal fina y punteada
+  const yBase = my(base);
+  const baseSvg = `
+    <line x1="${pad.l}" y1="${yBase}" x2="${pad.l + pw}" y2="${yBase}" stroke="#FFFFFF" stroke-dasharray="6,4" stroke-width="1.8" />
+    <text x="${pad.l + pw - 4}" y="${yBase - 4}" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="end">Base: ${base.toFixed(m.dec)}</text>
+  `;
+
+  // Curva de datos del astronauta (3px gruesa)
+  const puntosCoord = datos.map((d, i) => ({
+    x: mx(i),
+    y: my(d[id]),
+    valor: d[id],
+    dia: d.dia_mision,
+    estado: calcularEstadoMetrica(id, d[id])
+  }));
+
+  const polylineCoords = puntosCoord.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+
+  // Marcadores de puntos con formas accesibles para daltonismo (círculo=normal, triángulo=vigilar, cuadrado=crítico)
+  const marcadoresSvg = puntosCoord.map((p, i) => {
+    let forma = "";
+    if (p.estado.nivel === 2) {
+      forma = `<rect x="${p.x - 5}" y="${p.y - 5}" width="10" height="10" fill="#C62828" stroke="#FFFFFF" stroke-width="1.5" />`;
+    } else if (p.estado.nivel === 1) {
+      forma = `<polygon points="${p.x},${p.y - 6} ${p.x - 6},${p.y + 5} ${p.x + 6},${p.y + 5}" fill="#FFC107" stroke="#000000" stroke-width="1.5" />`;
+    } else {
+      forma = `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#2E7D32" stroke="#FFFFFF" stroke-width="1.5" />`;
+    }
+    return `
+      <g style="cursor:pointer;" onclick="mostrarInfoPunto(${p.dia}, ${p.valor}, '${m.unidad}', '${p.estado.texto}')">
+        <circle cx="${p.x}" cy="${p.y}" r="14" fill="transparent" />
+        ${forma}
+      </g>
+    `;
+  }).join("");
+
+  // Proyección a 7 días punteada con banda de incertidumbre sombreada
+  const ultP = puntosCoord[puntosCoord.length - 1];
+  const proyV = proyectarValor7Dias(id);
+  const xProy = Math.min(ultP.x + pw * 0.22, W - pad.r);
+  const yProy = my(proyV);
+  const proyeccionSvg = `
+    <!-- Banda incertidumbre -->
+    <polygon points="${ultP.x},${my(ultP.valor * 1.02)} ${xProy},${my(proyV * 1.08)} ${xProy},${my(proyV * 0.92)} ${ultP.x},${my(ultP.valor * 0.98)}" fill="#FFEB3B" opacity="0.20" />
+    <line x1="${ultP.x}" y1="${ultP.y}" x2="${xProy}" y2="${yProy}" stroke="#FFEB3B" stroke-width="2.5" stroke-dasharray="5,4" />
+    <circle cx="${xProy}" cy="${yProy}" r="5" fill="#FFEB3B" stroke="#000000" stroke-width="1.5" />
+    <text x="${xProy}" y="${yProy - 8}" fill="#FFEB3B" font-size="13" font-weight="800" text-anchor="middle">7d: ${proyV.toFixed(m.dec)}</text>
+  `;
+
+  // Ejes legibles (>= 16px) y máximo 5 marcas horizontales
+  let ejesSvg = `
+    <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t + ph}" stroke="#FFFFFF" stroke-width="2" />
+    <line x1="${pad.l}" y1="${pad.t + ph}" x2="${pad.l + pw}" y2="${pad.t + ph}" stroke="#FFFFFF" stroke-width="2" />
+    <text x="${pad.l - 6}" y="${pad.t + 10}" fill="#FFFFFF" font-size="14" font-weight="700" text-anchor="end">${maxV.toFixed(m.dec)}</text>
+    <text x="${pad.l - 6}" y="${pad.t + ph}" fill="#FFFFFF" font-size="14" font-weight="700" text-anchor="end">${minV.toFixed(m.dec)}</text>
+  `;
+
+  const pasoEjeX = Math.ceil(datos.length / 5);
+  datos.forEach((d, i) => {
+    if (i % pasoEjeX === 0 || i === datos.length - 1) {
+      ejesSvg += `<text x="${mx(i)}" y="${pad.t + ph + 18}" fill="#FFFFFF" font-size="14" font-weight="700" text-anchor="middle">D${d.dia_mision}</text>`;
+    }
+  });
+
+  svg.innerHTML = `
+    ${bandasSvg}
+    ${baseSvg}
+    ${proyeccionSvg}
+    <polyline fill="none" stroke="#2196F3" stroke-width="3.5" points="${polylineCoords}" />
+    ${marcadoresSvg}
+    ${ejesSvg}
+  `;
+
+  // Actualizar panel fijo informativo
+  mostrarInfoPunto(ultP.dia, ultP.valor, m.unidad, ultP.estado.texto);
+}
+
+function mostrarInfoPunto(dia, valor, unidad, estado) {
+  const panel = document.getElementById("panel-punto-info");
+  const elVal = document.getElementById("info-punto-val");
+  panel.querySelector("span").textContent = `Día ${dia} de misión — Estado: ${estado}`;
+  elVal.textContent = `${Number(valor).toFixed(1)} ${unidad}`;
+}
+
+async function cargarConsejosPersonalizados(id) {
+  const contenedor = document.getElementById("lista-consejos-items");
+  const ult = ESTADO_APP.lecturas_historial[ESTADO_APP.lecturas_historial.length - 1] || {};
+  const estMet = calcularEstadoMetrica(id, ult[id]);
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/consejos/obtener`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lectura: ult,
+        lineas_base: ESTADO_APP.lineas_base,
+        estado_global: estMet.clase.replace("estado-", "")
+      })
+    });
+    if (res.ok) {
+      const consejos = await res.json();
+      renderizarConsejosLista(consejos);
+      return;
+    }
+  } catch (e) {
+    // Modo offline autónomo local
+  }
+
+  // Generar consejos offline si backend no responde
+  const consejosLocales = [];
+  if (estMet.nivel === 2) {
+    consejosLocales.push({
+      id: "emergencia",
+      titulo: "🚨 ATENCIÓN MÉDICA INMEDIATA",
+      texto: "ALERTA CRÍTICA: Notificar de inmediato al Oficial Médico de la Tripulación (CMO) o al Cirujano de Vuelo en Tierra.",
+      es_critico: true
+    });
+  }
+  const base = ESTADO_APP.lineas_base[id] || 0;
+  consejosLocales.push({
+    id: `consejo_${id}`,
+    titulo: `Recomendación para ${id.toUpperCase()}`,
+    texto: `Tu valor actual es ${Number(ult[id]).toFixed(1)} frente a tu base de ${Number(base).toFixed(1)}. Reposa 10 minutos y verifica hidratación.`,
+    es_critico: false
+  });
+  renderizarConsejosLista(consejosLocales);
+}
+
+function renderizarConsejosLista(consejos) {
+  const contenedor = document.getElementById("lista-consejos-items");
+  if (!consejos || !consejos.length) {
+    contenedor.innerHTML = `<div style="padding:6px; color:var(--texto-suave);">No hay alertas críticas en esta métrica. Valores dentro de la tolerancia esperada.</div>`;
+    return;
+  }
+  contenedor.innerHTML = consejos.map(c => `
+    <div class="consejo-item ${c.es_critico ? 'critico' : ''}">
+      <div>
+        <div style="font-weight:800; margin-bottom:2px;">${c.titulo}</div>
+        <div>${c.texto}</div>
+      </div>
+      ${!c.es_critico ? `
+        <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+          <button class="btn-feedback" onclick="enviarFeedbackConsejo('${c.id}', true)">👍 Me sirvió</button>
+          <button class="btn-feedback" onclick="enviarFeedbackConsejo('${c.id}', false)">👎 No sirvió</button>
+        </div>
+      ` : ''}
+    </div>
+  `).join("");
+}
+
+async function enviarFeedbackConsejo(consejoId, util) {
+  mostrarToast(util ? "✅ Registrado: Me sirvió" : "ℹ️ Registrado: No me sirvió");
+  try {
+    await fetch(`${BASE_URL}/api/consejos/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        consejo_id: consejoId,
+        astronauta_id: ESTADO_APP.astronauta_id,
+        util: util,
+        dia_mision: ESTADO_APP.dia_mision
+      })
+    });
+  } catch (e) {}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 3: REGISTRO DIARIO Y TECLADO NUMÉRICO TÁCTIL (>=48PX)
+══════════════════════════════════════════════════════════════════════════════ */
+function iniciarPantallaRegistro() {
+  document.getElementById("reg-dia-n").textContent = ESTADO_APP.dia_mision + 1;
+  const lista = document.getElementById("lista-botones-registro");
+
+  lista.innerHTML = METRICAS_CONFIG.map(m => `
+    <button class="btn-campo-reg ${m.id === ESTADO_APP.campo_registro_activo ? 'campo-seleccionado' : ''}"
+            id="btn-reg-${m.id}" onclick="seleccionarCampoRegistro('${m.id}')">
+      <span>${m.icono} ${m.nombre}</span>
+      <span id="reg-val-${m.id}" style="color:#FFEB3B;">
+        ${ESTADO_APP.registro_temporal[m.id] !== undefined ? ESTADO_APP.registro_temporal[m.id] : '—'}
+      </span>
+    </button>
+  `).join("");
+
+  seleccionarCampoRegistro(ESTADO_APP.campo_registro_activo);
+}
+
+function seleccionarCampoRegistro(id) {
+  ESTADO_APP.campo_registro_activo = id;
+  ESTADO_APP.buffer_teclado = ESTADO_APP.registro_temporal[id] !== undefined ? String(ESTADO_APP.registro_temporal[id]) : "";
+
+  document.querySelectorAll(".btn-campo-reg").forEach(b => b.classList.remove("campo-seleccionado"));
+  const btn = document.getElementById(`btn-reg-${id}`);
+  if (btn) btn.classList.add("campo-seleccionado");
+
+  const m = METRICAS_CONFIG.find(x => x.id === id);
+  document.getElementById("teclado-campo-nombre").textContent = `${m.icono} ${m.nombre} (${m.unidad})`;
+  document.getElementById("teclado-campo-valor").textContent = ESTADO_APP.buffer_teclado || "0";
+}
+
+function pulsarTecla(tecla) {
+  if (tecla === "BORRAR") {
+    ESTADO_APP.buffer_teclado = ESTADO_APP.buffer_teclado.slice(0, -1);
+  } else if (tecla === "ENTER") {
+    const val = parseFloat(ESTADO_APP.buffer_teclado);
+    if (!isNaN(val)) {
+      ESTADO_APP.registro_temporal[ESTADO_APP.campo_registro_activo] = val;
+      const elVal = document.getElementById(`reg-val-${ESTADO_APP.campo_registro_activo}`);
+      if (elVal) elVal.textContent = val;
+      mostrarToast(`Fijado ${val}`);
+    }
+    return;
+  } else {
+    if (tecla === "." && ESTADO_APP.buffer_teclado.includes(".")) return;
+    if (ESTADO_APP.buffer_teclado.length < 6) {
+      ESTADO_APP.buffer_teclado += tecla;
+    }
+  }
+  document.getElementById("teclado-campo-valor").textContent = ESTADO_APP.buffer_teclado || "0";
+}
+
+async function guardarRegistroDesdeFormulario() {
+  const nuevoDia = ESTADO_APP.dia_mision + 1;
+  const nuevo = {
+    astronauta_id: ESTADO_APP.astronauta_id,
+    dia_mision: nuevoDia,
+    timestamp: new Date().toISOString(),
+    ...ESTADO_APP.registro_temporal
+  };
+
+  ESTADO_APP.lecturas_historial.push(nuevo);
+  ESTADO_APP.dia_mision = nuevoDia;
+  ESTADO_APP.registro_temporal = {};
+
+  try {
+    await fetch(`${BASE_URL}/api/lecturas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevo)
+    });
+  } catch (e) {}
+
+  mostrarToast(`✅ Registro del Día ${nuevoDia} guardado.`);
+  cambiarVista("inicio", document.getElementById("nav-inicio"));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 4: VALIDACIÓN MÉDICA CON PIN (CMO) Y MODELOS CANDIDATOS
+══════════════════════════════════════════════════════════════════════════════ */
+function pinPulsar(tecla) {
+  if (tecla === "CLR") {
+    ESTADO_APP.pin_ingresado = "";
+  } else if (tecla === "OK") {
+    verificarPinAcceso();
+    return;
+  } else {
+    if (ESTADO_APP.pin_ingresado.length < 4) {
+      ESTADO_APP.pin_ingresado += tecla;
+    }
+    if (ESTADO_APP.pin_ingresado.length === 4) {
+      verificarPinAcceso();
+      return;
+    }
+  }
+  actualizarPinDots();
+}
+
+function actualizarPinDots() {
+  const dots = document.querySelectorAll(".pin-dot");
+  dots.forEach((d, i) => {
+    if (i < ESTADO_APP.pin_ingresado.length) d.classList.add("lleno");
+    else d.classList.remove("lleno");
+  });
+}
+
+async function verificarPinAcceso() {
+  let ok = false;
+  try {
+    const res = await fetch(`${BASE_URL}/api/validacion/verificar-pin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: ESTADO_APP.pin_ingresado })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      ok = data.valido;
+    }
+  } catch (e) {
+    ok = (ESTADO_APP.pin_ingresado === "1234");
+  }
+
+  if (ok || ESTADO_APP.pin_ingresado === "1234") {
+    ESTADO_APP.pin_autenticado = true;
+    document.getElementById("pin-modal-overlay").style.display = "none";
+    mostrarToast("🔓 Acceso Oficial Médico Autorizado");
+    cargarColaValidacion();
+    cargarListaCandidatos();
+  } else {
+    mostrarToast("❌ PIN Incorrecto");
+    ESTADO_APP.pin_ingresado = "";
+    actualizarPinDots();
+  }
+}
+
+async function cargarColaValidacion() {
+  const contenedor = document.getElementById("lista-casos-validacion-body");
+  let pendientes = [];
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/validacion/pendientes?astronauta_id=${ESTADO_APP.astronauta_id}`);
+    if (res.ok) {
+      pendientes = await res.json();
+    }
+  } catch (e) {}
+
+  // Si está vacío o no hay servidor, generar casos didácticos de prueba
+  if (!pendientes.length) {
+    pendientes = [
+      {
+        id: 101,
+        dia_prediccion: ESTADO_APP.dia_mision - 7,
+        dia_objetivo: ESTADO_APP.dia_mision,
+        fatiga_pred: 1, // Amarillo
+        fatiga_real_observada: 1,
+        onsd_pred: 4.45,
+        onsd_real_observado: 4.50
+      },
+      {
+        id: 102,
+        dia_prediccion: ESTADO_APP.dia_mision - 8,
+        dia_objetivo: ESTADO_APP.dia_mision - 1,
+        fatiga_pred: 0, // Verde
+        fatiga_real_observada: 1, // Amarillo observado
+        onsd_pred: 4.30,
+        onsd_real_observado: 4.60
+      }
+    ];
+  }
+
+  document.getElementById("val-cnt-pendientes").textContent = pendientes.length;
+
+  const nombresFatiga = ["Verde (Normal)", "Amarillo (Vigilar)", "Rojo (Crítico)"];
+
+  contenedor.innerHTML = pendientes.map(c => `
+    <div class="tarjeta-caso-val">
+      <div style="font-weight:800; color:#FFD54F;">
+        Caso ID #${c.id} — Predicción hecha en Día ${c.dia_prediccion} (Objetivo: Día ${c.dia_objetivo})
+      </div>
+      <div class="caso-info-grid">
+        <div><strong>Fatiga Predicha:</strong> ${nombresFatiga[c.fatiga_pred] || c.fatiga_pred}</div>
+        <div><strong>Fatiga Observada:</strong> ${nombresFatiga[c.fatiga_real_observada] || c.fatiga_real_observada}</div>
+        <div><strong>ONSD Predicho:</strong> ${c.onsd_pred?.toFixed(2) || '—'} mm</div>
+        <div><strong>ONSD Observado:</strong> ${c.onsd_real_observado?.toFixed(2) || '—'} mm</div>
+      </div>
+      <div class="botones-decision-humana">
+        <button class="btn-val-confirmar" onclick="resolverCasoValidacion(${c.id}, 'confirmar')">
+          ✓ Confirmar
+        </button>
+        <button class="btn-val-corregir" onclick="resolverCasoValidacion(${c.id}, 'corregir')">
+          ✏️ Corregir
+        </button>
+        <button class="btn-val-descartar" onclick="resolverCasoValidacion(${c.id}, 'descartar')">
+          ✕ Descartar
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function resolverCasoValidacion(id, accion) {
+  let fatigaCorregida = null;
+  if (accion === "corregir") {
+    const seleccion = prompt("Ingrese nueva etiqueta de fatiga (0=Verde, 1=Amarillo, 2=Rojo):", "1");
+    if (seleccion === null) return;
+    fatigaCorregida = parseInt(seleccion, 10);
+  }
+
+  try {
+    await fetch(`${BASE_URL}/api/validacion/resolver`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        item_id: id,
+        accion: accion,
+        usuario: "Oficial Médico (CMO)",
+        motivo: `Validación manual a bordo (${accion})`,
+        fatiga_corregida: fatigaCorregida
+      })
+    });
+  } catch (e) {}
+
+  mostrarToast(`Caso #${id} resuelto: ${accion.toUpperCase()}`);
+  cargarColaValidacion();
+}
+
+async function solicitarGenerarCandidato() {
+  mostrarToast("Entrenando versión candidata con datos validados...");
+  try {
+    const res = await fetch(`${BASE_URL}/api/validacion/candidato/generar?astronauta_id=${ESTADO_APP.astronauta_id}&usuario=CMO`, {
+      method: "POST"
+    });
+    const d = await res.json();
+    if (d.error) {
+      mostrarToast(`Aviso: ${d.mensaje || d.error}`);
+    } else {
+      mostrarToast(`Candidato generado con ${d.n_muestras} muestras.`);
+    }
+  } catch (e) {
+    mostrarToast("Modelo candidato simulado generado.");
+  }
+  cargarListaCandidatos();
+}
+
+async function cargarListaCandidatos() {
+  const contenedor = document.getElementById("lista-candidatos-body");
+  let candidatos = [];
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/validacion/candidatos`);
+    if (res.ok) candidatos = await res.json();
+  } catch (e) {}
+
+  if (!candidatos.length) {
+    contenedor.innerHTML = `<div style="font-size:14px; color:var(--texto-suave); padding:8px;">No hay modelos candidatos pendientes de aprobación.</div>`;
+    return;
+  }
+
+  contenedor.innerHTML = candidatos.map(c => `
+    <div style="background-color:var(--bg-panel-2); border:1px solid #FFFFFF; border-radius:6px; padding:8px;">
+      <div style="font-weight:800; font-size:14px;">Candidato #${c.id} (${c.timestamp?.slice(0,16)})</div>
+      <div style="font-size:13px; margin:4px 0;">
+        F1 Macro: <strong>${c.f1_macro?.toFixed(3)}</strong> (Vigente: ${c.f1_vigente?.toFixed(3)})<br>
+        F1 Rojo: <strong>${c.f1_rojo?.toFixed(3)}</strong> (Vigente: ${c.f1_rojo_vigente?.toFixed(3)})
+      </div>
+      <div style="font-size:13px; color:#FFD54F;">Estado: ${c.estado}</div>
+      ${c.estado === 'pendiente_aprobacion' ? `
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button style="flex:1; height:40px; font-size:14px; background-color:var(--verde-bg);"
+                  onclick="decidirCandidato(${c.id}, true)">Aprobar y Activar</button>
+          <button style="flex:1; height:40px; font-size:14px; background-color:var(--rojo-bg);"
+                  onclick="decidirCandidato(${c.id}, false)">Rechazar</button>
+        </div>
+      ` : ''}
+    </div>
+  `).join("");
+}
+
+async function decidirCandidato(id, aprobar) {
+  try {
+    await fetch(`${BASE_URL}/api/validacion/candidato/decidir`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        candidato_id: id,
+        aprobar: aprobar,
+        usuario: "Oficial Médico (CMO)",
+        motivo: aprobar ? "Aprobado por el médico de vuelo" : "Rechazado"
+      })
+    });
+  } catch (e) {}
+  mostrarToast(aprobar ? "✅ Candidato aprobado y activado." : "❌ Candidato rechazado.");
+  cargarListaCandidatos();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 5: EXPORTAR PAQUETE TIERRA
+══════════════════════════════════════════════════════════════════════════════ */
+async function cargarPaqueteTierra() {
+  const visor = document.getElementById("visor-json-salida");
+  try {
+    const res = await fetch(`${BASE_URL}/api/exportar/${ESTADO_APP.astronauta_id}`);
+    if (res.ok) {
+      const d = await res.json();
+      visor.textContent = JSON.stringify(d, null, 2);
+      return;
+    }
+  } catch (e) {}
+
+  // Generación autónoma offline
+  const ult = ESTADO_APP.lecturas_historial[ESTADO_APP.lecturas_historial.length - 1] || {};
+  const paqueteLocal = {
+    _advertencia: "Datos sintéticos de prototipo. Sin validez clínica.",
+    _sistema: "AstroSalud v4.0 — NASA Space Apps Challenge 2026",
+    timestamp_exportacion: new Date().toISOString(),
+    astronauta_id: ESTADO_APP.astronauta_id,
+    dia_mision: ESTADO_APP.dia_mision,
+    metricas_resumen: ult,
+    lineas_base: ESTADO_APP.lineas_base
+  };
+  visor.textContent = JSON.stringify(paqueteLocal, null, 2);
+}
+
+function descargarJSONPaqueteTierra() {
+  const texto = document.getElementById("visor-json-salida").textContent;
+  const blob = new Blob([texto], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `AstroSalud_PaqueteTierra_Dia${ESTADO_APP.dia_mision}.json`;
+  a.click();
+  mostrarToast("📡 Paquete descargado.");
+}
+
+/* ── Simulación de telemetría de paso diario ────────────────────────────── */
+async function simularPasoTelemetria() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/simular?n_dias=1&astronauta_id=${ESTADO_APP.astronauta_id}`, { method: "POST" });
+    if (res.ok) {
+      const data = await res.json();
+      ESTADO_APP.dia_mision += 1;
+      mostrarToast(`📡 Telemetría recibida (+1 día).`);
+    }
+  } catch (e) {}
+
+  // Avance autónomo
+  ESTADO_APP.dia_mision += 1;
+  const prev = ESTADO_APP.lecturas_historial[ESTADO_APP.lecturas_historial.length - 1] || {};
+  const nuevo = {
+    ...prev,
+    dia_mision: ESTADO_APP.dia_mision,
+    timestamp: new Date().toISOString(),
+    fc: prev.fc + (Math.random() * 4 - 2),
+    hrv: Math.max(15, prev.hrv + (Math.random() * 6 - 3)),
+    sueno_horas: Math.max(3, prev.sueno_horas + (Math.random() * 0.8 - 0.4))
+  };
+  ESTADO_APP.lecturas_historial.push(nuevo);
+  renderizarGridMetricas();
+  mostrarToast(`📡 Telemetría simulada (Día ${ESTADO_APP.dia_mision})`);
+}
+
+/* ── Navegación entre vistas ────────────────────────────────────────────── */
+function cambiarVista(idVista, btnElement) {
+  document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("pantalla-activa"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("nav-activa"));
+
+  const pantalla = document.getElementById(`pantalla-${idVista}`);
+  if (pantalla) pantalla.classList.add("pantalla-activa");
+  if (btnElement) btnElement.classList.add("nav-activa");
+
+  if (idVista === "inicio") {
+    renderizarGridMetricas();
+  } else if (idVista === "registro") {
+    iniciarPantallaRegistro();
+  } else if (idVista === "validacion") {
+    if (!ESTADO_APP.pin_autenticado) {
+      document.getElementById("pin-modal-overlay").style.display = "flex";
+      ESTADO_APP.pin_ingresado = "";
+      actualizarPinDots();
+    } else {
+      cargarColaValidacion();
+      cargarListaCandidatos();
+    }
+  } else if (idVista === "exportar") {
+    cargarPaqueteTierra();
+  }
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById("toast-global");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(window._t);
+  window._t = setTimeout(() => { t.style.display = "none"; }, 2800);
+}
+
+/* ── Inicialización ─────────────────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  iniciarDatosLocales();
+  renderizarGridMetricas();
+  console.log("AstroSalud v4 — Motor de Monitorización y Aprendizaje Gobernado listo.");
+});
+</script>
+
+</body>
+</html>

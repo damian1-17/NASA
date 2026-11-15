@@ -1,0 +1,102 @@
+{
+  "_advertencia": "Consejos de bienestar general y apoyo a la decisión. NO constituyen diagnóstico ni prescripción médica.",
+  "_seguridad": "En estado crítico (rojo), el primer consejo SIEMPRE es contactar inmediatamente al oficial médico o cirujano de vuelo.",
+  "regla_emergencia_roja": {
+    "texto": "ALERTA CRÍTICA: Notificar de inmediato al Oficial Médico de la Tripulación (CMO) o al Cirujano de Vuelo en Tierra.",
+    "evidencia": "alta",
+    "prioridad": 0
+  },
+  "catalogo": [
+    {
+      "id": "sueno_deficit_leve",
+      "metrica": "sueno_horas",
+      "condicion": "valor < base * 0.85 and valor >= base * 0.70",
+      "estado_aplicable": ["amarillo"],
+      "titulo": "Optimización del descanso circadiano",
+      "plantilla": "Dormiste {valor:.1f} h (tu línea base es {base:.1f} h). Mantén un horario fijo de acostarse y levantarse. Aplica 30 min de luz tenue previo al descanso y evita pantallas 1 h antes.",
+      "evidencia": "alta",
+      "fuente": "NASA Human Research Program - Behavioral Health & Sleep (aproximado, verificar)"
+    },
+    {
+      "id": "sueno_deficit_severo",
+      "metrica": "sueno_horas",
+      "condicion": "valor < base * 0.70",
+      "estado_aplicable": ["rojo"],
+      "titulo": "Déficit severo de sueño acumulado",
+      "plantilla": "Dormiste únicamente {valor:.1f} h frente a tu base de {base:.1f} h. Programa una siesta reparadora de 20-30 min antes de tareas operativas críticas. Notifica al CMO si persiste fatiga.",
+      "evidencia": "alta",
+      "fuente": "NASA HRP Sleep Countermeasures (aproximado, verificar)"
+    },
+    {
+      "id": "hrv_baja_estres",
+      "metrica": "hrv",
+      "condicion": "valor < base - 1.5 * std",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Recuperación del tono autonómico",
+      "plantilla": "Tu HRV actual es {valor:.0f} ms (base personal: {base:.0f} ms). Realiza 5 minutos de respiración guiada a 6 ciclos/min (técnica de coherencia cardíaca) y evalúa hidratación.",
+      "evidencia": "media",
+      "fuente": "Autonomic Regulation in Microgravity (aproximado, verificar)"
+    },
+    {
+      "id": "fc_elevada_reposo",
+      "metrica": "fc",
+      "condicion": "valor > base + 1.5 * std",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Pausa activa y rehidratación",
+      "plantilla": "Frecuencia cardíaca en reposo de {valor:.0f} lpm supera tu base ({base:.0f} lpm). Guarda reposo sentado por 10 min, consume 300 ml de solución electrolítica y verifica temperatura ambiental.",
+      "evidencia": "alta",
+      "fuente": "Spaceflight Cardiovascular Adaptations (aproximado, verificar)"
+    },
+    {
+      "id": "ejercicio_incompleto",
+      "metrica": "ejercicio_min",
+      "condicion": "valor < base * 0.75",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Cumplimiento del protocolo de contramedidas",
+      "plantilla": "Completaste {valor:.0f} min de ejercicio (meta diaria: {base:.0f} min). Si el horario está saturado, fracciona la sesión restante en bloques de 15 min en el cicloergómetro o ARED.",
+      "evidencia": "alta",
+      "fuente": "ISS Exercise Countermeasure Protocols (aproximado, verificar)"
+    },
+    {
+      "id": "presion_desviada",
+      "metrica": "sistolica",
+      "condicion": "abs(valor - base) > 20",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Control hemodinámico postural",
+      "plantilla": "Presión sistólica de {valor:.0f} mmHg desviada de tu base ({base:.0f} mmHg). Descansa 10 min en posición neutra de microgravedad y repite la toma. Revisa ingesta de sodio.",
+      "evidencia": "alta",
+      "fuente": "Cephalad Fluid Shift Guidelines (aproximado, verificar)"
+    },
+    {
+      "id": "animo_carga_elevada",
+      "metrica": "animo",
+      "condicion": "valor <= 3 or carga_trabajo >= 4",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Regulación de carga cognitiva y soporte social",
+      "plantilla": "Nivel de ánimo en {valor:.1f}/5 con carga percibida alta. Programa 15 min de actividad libre no operativa, contacta con tu soporte familiar o conversa con un compañero de misión.",
+      "evidencia": "media",
+      "fuente": "Behavioral Health Interventions in Isolated Environments (aproximado, verificar)"
+    },
+    {
+      "id": "onsd_elevacion_sans",
+      "metrica": "onsd_mm",
+      "condicion": "valor > 5.0",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Protocolo de vigilancia neuro-ocular (SANS)",
+      "plantilla": "ONSD medido de {valor:.2f} mm excede el umbral de vigilancia (>5.0 mm; tu base: {base:.2f} mm). Reporta al CMO para programar ecografía de control y fondo de ojo. Evalúa manguitos de muslo si están autorizados.",
+      "evidencia": "media",
+      "fuente": "SANS Clinical Practice Guidelines (aproximado, verificar)"
+    },
+    {
+      "id": "spo2_alerta",
+      "metrica": "spo2",
+      "condicion": "valor < 95.0",
+      "estado_aplicable": ["amarillo", "rojo"],
+      "titulo": "Verificación de ventilación y soporte vital",
+      "plantilla": "SpO₂ de {valor:.1f}% por debajo del umbral seguro (95%). Verifica flujo de renovación de aire local, descartar acumulación de CO₂ en el módulo y respira profundamente con oxígeno suplementario si persiste.",
+      "evidencia": "alta",
+      "fuente": "Environmental Control & Life Support Systems (aproximado, verificar)"
+    }
+  ]
+}
+
