@@ -78,16 +78,6 @@
       "fuente": "Behavioral Health Interventions in Isolated Environments (aproximado, verificar)"
     },
     {
-      "id": "onsd_elevacion_sans",
-      "metrica": "onsd_mm",
-      "condicion": "valor > 5.0",
-      "estado_aplicable": ["amarillo", "rojo"],
-      "titulo": "Protocolo de vigilancia neuro-ocular (SANS)",
-      "plantilla": "ONSD medido de {valor:.2f} mm excede el umbral de vigilancia (>5.0 mm; tu base: {base:.2f} mm). Reporta al CMO para programar ecografía de control y fondo de ojo. Evalúa manguitos de muslo si están autorizados.",
-      "evidencia": "media",
-      "fuente": "SANS Clinical Practice Guidelines (aproximado, verificar)"
-    },
-    {
       "id": "spo2_alerta",
       "metrica": "spo2",
       "condicion": "valor < 95.0",

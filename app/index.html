@@ -51,16 +51,27 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-  width: 800px;
-  height: 480px;
-  overflow: hidden;
-  background-color: var(--bg-pantalla);
+html {
+  min-height: 100%;
+  background: radial-gradient(circle at 50% 25%, #182438 0%, #0c121e 60%, #04060a 100%);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 14px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   color: var(--texto-general);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 1.3;
+  overflow-x: auto;
+  overflow-y: auto;
+  background: transparent;
 }
 
 /* ── Botones globales accesibles (mínimo 48px y texto explícito) ────────── */
@@ -105,6 +116,8 @@ button:disabled {
   width: 800px;
   height: 480px;
   overflow: hidden;
+  position: relative;
+  background-color: var(--bg-pantalla);
 }
 
 /* HEADER: 44px */
@@ -755,11 +768,453 @@ footer {
   z-index: 200;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
+/* ══════════════════════════════════════════════════════════════════════════════
+   BARRA SUPERIOR DE PRESENTACIÓN & ACCESO A CANVA
+══════════════════════════════════════════════════════════════════════════════ */
+.barra-presentacion {
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  background: rgba(14, 22, 38, 0.9);
+  border: 1px solid #304260;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  flex-wrap: wrap;
+}
+
+.presentacion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #CFD8DC;
+  letter-spacing: 0.3px;
+}
+.badge-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #00E676;
+  box-shadow: 0 0 8px #00E676;
+  display: inline-block;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.85); opacity: 0.6; }
+}
+
+.presentacion-acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botón Canva Oficial */
+#btn-canva-enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px 18px;
+  min-height: 42px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #00C4CC 0%, #7D2AE8 100%);
+  color: #FFFFFF !important;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 4px 14px rgba(125, 42, 232, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  user-select: none;
+}
+#btn-canva-enlace:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(125, 42, 232, 0.65), 0 0 10px rgba(0, 196, 204, 0.5);
+}
+#btn-canva-enlace:active {
+  transform: translateY(0);
+}
+#btn-canva-enlace:focus-visible {
+  outline: 3px solid #FFEB3B;
+  outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CHASIS HARDWARE RASPBERRY PI 7" TOUCHSCREEN DISPLAY
+══════════════════════════════════════════════════════════════════════════════ */
+.rpi-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 6px 0 24px;
+}
+
+.rpi-casing {
+  position: relative;
+  width: 876px;
+  background: linear-gradient(150deg, #222733 0%, #171b24 35%, #0f1218 100%);
+  border: 2px solid #2d3546;
+  border-radius: 20px;
+  padding: 14px 34px 16px 34px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 4 Tornillos esquinas tipo Phillips */
+.rpi-screw {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #cfd8dc 0%, #78909c 50%, #37474f 90%, #212121 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.8);
+  z-index: 10;
+}
+.rpi-screw::before, .rpi-screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: #1a1e24;
+  transform: translate(-50%, -50%);
+}
+.rpi-screw::before {
+  width: 8px;
+  height: 2px;
+}
+.rpi-screw::after {
+  width: 2px;
+  height: 8px;
+}
+.screw-tl { top: 12px; left: 14px; }
+.screw-tr { top: 12px; right: 14px; }
+.screw-bl { bottom: 12px; left: 14px; }
+.screw-br { bottom: 12px; right: 14px; }
+
+/* Barra superior del chasis */
+.rpi-chassis-header {
+  width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px 8px 4px;
+  user-select: none;
+}
+.rpi-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.rpi-logo-svg {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+.rpi-silk-text {
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #78909c;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* Hardware LEDs */
+.rpi-hw-leds {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+.rpi-led-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rpi-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.led-pwr {
+  background-color: #FF1744;
+  box-shadow: 0 0 6px #FF1744, 0 0 12px rgba(255, 23, 68, 0.8);
+}
+.led-act {
+  background-color: #00E676;
+  box-shadow: 0 0 6px #00E676, 0 0 10px rgba(0, 230, 118, 0.8);
+  animation: rpiActBlink 2.4s infinite ease-in-out;
+}
+@keyframes rpiActBlink {
+  0%, 100% { opacity: 0.95; filter: brightness(1.2); }
+  25% { opacity: 0.2; filter: brightness(0.6); }
+  35% { opacity: 1; filter: brightness(1.4); }
+  42% { opacity: 0.15; filter: brightness(0.5); }
+  60% { opacity: 0.85; filter: brightness(1.1); }
+  75% { opacity: 0.3; filter: brightness(0.7); }
+}
+.rpi-led-label {
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: #90a4ae;
+}
+
+/* Marco biselado de la pantalla */
+.rpi-screen-bezel {
+  width: 800px;
+  height: 480px;
+  border-radius: 4px;
+  border: 2px solid #080a0e;
+  box-shadow: none;
+  overflow: hidden;
+  background-color: #000000;
+}
+
+/* Barra inferior del chasis */
+.rpi-chassis-footer {
+  width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px 0 4px;
+  user-select: none;
+}
+.rpi-vent-grill {
+  display: flex;
+  gap: 3px;
+}
+.rpi-vent-grill span {
+  width: 3px;
+  height: 12px;
+  background: #0d1016;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 1px #000000, 0 1px 0 rgba(255,255,255,0.06);
+}
+.rpi-serial {
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #546e7a;
+  letter-spacing: 0.6px;
+}
+
+/* Puertos laterales de la Raspberry Pi 4/5 (lado derecho) */
+.rpi-ports-side {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+}
+.rpi-port {
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 8px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
+  user-select: none;
+}
+.port-rj45 {
+  width: 22px;
+  height: 48px;
+  background: linear-gradient(90deg, #546e7a 0%, #78909c 70%, #90a4ae 100%);
+  color: #1a1e24;
+  border: 1px solid #37474f;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  position: relative;
+}
+.port-rj45::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  height: 6px;
+  background: #111;
+  border-radius: 1px;
+}
+.port-usb3 {
+  width: 20px;
+  height: 44px;
+  background: linear-gradient(90deg, #0277bd 0%, #0288d1 60%, #4fc3f7 100%);
+  color: #FFFFFF;
+  border: 1px solid #01579b;
+  writing-mode: vertical-rl;
+}
+.port-usb2 {
+  width: 20px;
+  height: 44px;
+  background: linear-gradient(90deg, #263238 0%, #37474f 60%, #455a64 100%);
+  color: #eceff1;
+  border: 1px solid #1a2024;
+  writing-mode: vertical-rl;
+}
+.port-pwr {
+  width: 14px;
+  height: 24px;
+  background: #263238;
+  color: #ffab40;
+  border: 1px solid #455a64;
+  font-size: 7px;
+}
+.port-hdmi {
+  width: 16px;
+  height: 22px;
+  background: #37474f;
+  color: #cfd8dc;
+  border: 1px solid #546e7a;
+  font-size: 6px;
+}
+
+/* Patas de soporte / peanas inferiores */
+.rpi-stand-foot {
+  position: absolute;
+  bottom: -18px;
+  width: 70px;
+  height: 18px;
+  background: linear-gradient(180deg, #191c24 0%, #0d0f14 100%);
+  border: 1px solid #2e3440;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  z-index: -1;
+}
+.foot-left { left: 90px; }
+.foot-right { right: 90px; }
+
+/* ── MODO QUIOSCO (SOLO PANTALLA 800x480 PURA) ────────────────────────── */
+body.modo-quiosco {
+  width: 800px;
+  height: 480px;
+  min-height: 480px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background: #000000;
+  justify-content: center;
+}
+body.modo-quiosco .barra-presentacion,
+body.modo-quiosco .rpi-chassis-header,
+body.modo-quiosco .rpi-chassis-footer,
+body.modo-quiosco .rpi-screw,
+body.modo-quiosco .rpi-ports-side,
+body.modo-quiosco .rpi-stand-foot {
+  display: none !important;
+}
+body.modo-quiosco .rpi-stage {
+  margin: 0 !important;
+}
+body.modo-quiosco .rpi-casing {
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  width: 800px !important;
+}
+body.modo-quiosco .rpi-screen-bezel {
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
   </style>
 </head>
 <body>
 
-<div id="app-root">
+<!-- ── BARRA SUPERIOR DE PRESENTACIÓN Y ACCESO DIRECTO A CANVA ──────── -->
+<header class="barra-presentacion" role="banner">
+  <div class="presentacion-badge">
+    <span class="badge-dot" aria-hidden="true"></span>
+    <span><strong>NASA Space Apps Challenge 2026</strong> • AstroSalud v4</span>
+  </div>
+
+  <div class="presentacion-acciones">
+    <!-- Botón directo a presentación en Canva con gradiente oficial -->
+    <a id="btn-canva-enlace" href="https://canva.link/j9f5bdr8j1sm6x0" target="_blank" rel="noopener noreferrer" title="Abrir presentación oficial en Canva (pestaña nueva)">
+      <svg class="canva-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+        <path d="M19.33 10.04c-.31-.91-.84-1.72-1.55-2.35-.71-.63-1.57-1.07-2.52-1.28-.95-.21-1.94-.17-2.88.11-.93.28-1.78.8-2.47 1.49l-.91.91-1.42 1.42c-.52.52-.94 1.13-1.23 1.8-.29.67-.43 1.39-.4 2.11.03.72.22 1.42.57 2.05.35.63.85 1.17 1.45 1.57.61.41 1.3.67 2.02.77.72.1 1.45.02 2.14-.24.69-.26 1.31-.69 1.8-1.25.5-.56.86-1.23 1.06-1.96.2-.73.22-1.5.06-2.24-.16-.74-.5-1.42-1-1.98l-1.06-1.06c-.33-.33-.74-.57-1.19-.7-.45-.13-.93-.14-1.39-.02-.46.11-.87.35-1.2.68-.33.33-.56.75-.66 1.21-.1.46-.08.94.06 1.39.14.45.4.85.74 1.16l.85.85c.19.19.43.32.7.38.26.06.54.04.79-.06.25-.1.46-.27.61-.49.15-.22.22-.48.21-.75a1.2 1.2 0 0 0-.35-.85l-.71-.71a.6.6 0 0 1-.17-.42c0-.16.07-.31.18-.42.11-.11.26-.18.42-.18.16 0 .31.07.42.18l.85.85c.34.34.56.78.64 1.25.07.47.01.95-.17 1.38-.19.43-.5.79-.9 1.04-.4.25-.87.37-1.34.34-.47-.03-.92-.2-1.3-.5-.38-.3-.66-.7-.81-1.16-.15-.46-.17-.95-.06-1.42.11-.47.36-.89.72-1.22l1.41-1.41.92-.92c.54-.54 1.2-.94 1.93-1.16.73-.22 1.5-.25 2.24-.09.74.16 1.41.51 1.96 1 .55.5 0.96 1.12 1.2 1.83.24.7.27 1.46.11 2.2-.16.74-.53 1.42-1.07 1.96-.54.55-1.22.94-1.96 1.15-.75.2-1.53.2-2.28 0a4.8 4.8 0 0 1-1.74-.9l-.35.35c.67.65 1.51 1.1 2.43 1.3 0.92.2 1.88.16 2.78-.12.9-.28 1.71-.79 2.36-1.48.65-.69 1.1-1.53 1.3-2.45.21-.92.17-1.89-.12-2.79z"/>
+      </svg>
+      <span>🎨 Presentación Canva</span>
+    </a>
+
+  </div>
+</header>
+
+<!-- ── CHASIS HARDWARE RASPBERRY PI 7" TOUCH DISPLAY ─────────────────── -->
+<main class="rpi-stage">
+
+
+
+</header>
+
+<!-- ── CHASIS HARDWARE RASPBERRY PI 7" TOUCH DISPLAY ─────────────────── -->
+<main class="rpi-stage">
+
+  <div class="rpi-casing">
+    <!-- 4 Tornillos metálicos en esquinas -->
+    <div class="rpi-screw screw-tl" aria-hidden="true"></div>
+    <div class="rpi-screw screw-tr" aria-hidden="true"></div>
+    <div class="rpi-screw screw-bl" aria-hidden="true"></div>
+    <div class="rpi-screw screw-br" aria-hidden="true"></div>
+
+    <!-- Barra superior del chasis: Logo oficial, serigrafía y LEDs -->
+    <div class="rpi-chassis-header" aria-hidden="true">
+      <div class="rpi-brand">
+        <!-- SVG oficial Raspberry Pi (hojas verdes y bayas rojas) -->
+        <svg class="rpi-logo-svg" viewBox="0 0 24 28" width="20" height="24" fill="none">
+          <path d="M7 6C5 3 7 1 10 2C10 5 8 6 7 6Z" fill="#6DB33F"/>
+          <path d="M17 6C19 3 17 1 14 2C14 5 16 6 17 6Z" fill="#6DB33F"/>
+          <path d="M12 4C11 2 13 1 12 1C11 1 11 3 12 4Z" fill="#6DB33F"/>
+          <circle cx="9" cy="9" r="2.8" fill="#C51A4A"/>
+          <circle cx="15" cy="9" r="2.8" fill="#C51A4A"/>
+          <circle cx="12" cy="11.5" r="2.8" fill="#BC1142"/>
+          <circle cx="6.5" cy="14" r="2.8" fill="#C51A4A"/>
+          <circle cx="17.5" cy="14" r="2.8" fill="#C51A4A"/>
+          <circle cx="9" cy="17" r="2.8" fill="#C51A4A"/>
+          <circle cx="15" cy="17" r="2.8" fill="#C51A4A"/>
+          <circle cx="12" cy="19.5" r="2.6" fill="#BC1142"/>
+          <circle cx="12" cy="24" r="2.2" fill="#A00D35"/>
+          <circle cx="9.5" cy="22" r="2.3" fill="#BC1142"/>
+          <circle cx="14.5" cy="22" r="2.3" fill="#BC1142"/>
+        </svg>
+        <span class="rpi-silk-text">Raspberry Pi 7" Touchscreen Display • 800×480 DSI</span>
+      </div>
+
+      <div class="rpi-hw-leds">
+        <div class="rpi-led-wrap" title="Power LED (5V DC)">
+          <span class="rpi-led led-pwr"></span>
+          <span class="rpi-led-label">PWR</span>
+        </div>
+        <div class="rpi-led-wrap" title="Disk Activity LED">
+          <span class="rpi-led led-act"></span>
+          <span class="rpi-led-label">ACT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bisel de la pantalla táctil LCD (800×480) -->
+    <div class="rpi-screen-bezel">
+
+      <div id="app-root">
 
   <!-- ── HEADER SUPERIOR (44px) ────────────────────────────────────────── -->
   <header>
@@ -988,10 +1443,43 @@ footer {
     </span>
   </footer>
 
+  <!-- Toast global de notificaciones (dentro de la pantalla) -->
+  <div id="toast-global">Notificación</div>
+
 </div>
 
-<!-- Toast global de notificaciones -->
-<div id="toast-global">Notificación</div>
+    <!-- Cierre del bisel de pantalla LCD -->
+    </div>
+
+    <!-- Barra inferior con serigrafía técnica y rejillas de ventilación -->
+    <div class="rpi-chassis-footer" aria-hidden="true">
+      <div class="rpi-vent-grill">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="rpi-serial">MODEL RPI-7TOUCH-DSI • CE FCC IC • 800×480 CAPACITIVE</div>
+      <div class="rpi-vent-grill">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Puertos laterales simulados de la placa Raspberry Pi 4/5 conectada atrás -->
+    <div class="rpi-ports-side" aria-hidden="true">
+      <div class="rpi-port port-rj45" title="Gigabit Ethernet RJ45">ETH</div>
+      <div class="rpi-port port-usb3" title="Dual USB 3.0">USB 3</div>
+      <div class="rpi-port port-usb2" title="Dual USB 2.0">USB 2</div>
+      <div class="rpi-port port-pwr" title="USB-C Power 5V 3A">PWR</div>
+      <div class="rpi-port port-hdmi" title="Micro HDMI">HDMI</div>
+    </div>
+
+    <!-- Patas de soporte / peanas inferiores -->
+    <div class="rpi-stand-foot foot-left" aria-hidden="true"></div>
+    <div class="rpi-stand-foot foot-right" aria-hidden="true"></div>
+
+  </div>
+
+</main>
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -1012,7 +1500,6 @@ const METRICAS_CONFIG = [
   { id: "sueno_calidad", nombre: "Calidad de Sueño",   unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "⭐", base: 4.0 },
   { id: "animo",         nombre: "Ánimo Percibido",    unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "😊", base: 4.0 },
   { id: "carga_trabajo", nombre: "Carga de Trabajo",   unidad: "/5",   dec: 1, min: 1,   max: 5,   icono: "⚡", base: 2.5 },
-  { id: "onsd_mm",       nombre: "ONSD (Nervio Óptico)",unidad:"mm",   dec: 2, min: 2,   max: 9,   icono: "👁️", base: 4.3 },
   { id: "ejercicio_min", nombre: "Ejercicio Diario",   unidad: "min",  dec: 0, min: 0,   max: 300, icono: "🏃", base: 120 },
   { id: "radiacion_diaria",nombre:"Dosis Radiación",   unidad: "mSv",  dec: 2, min: 0,   max: 20,  icono: "☢️", base: 0.35 }
 ];
@@ -1029,7 +1516,6 @@ const RANGOS_REFERENCIA = {
   sueno_calidad:    { verde: [3.5, 5.0], amarillo: [2.5, 5.0] },
   animo:            { verde: [3.5, 5.0], amarillo: [2.5, 5.0] },
   carga_trabajo:    { verde: [1.0, 3.0], amarillo: [1.0, 4.0] },
-  onsd_mm:          { verde: [4.0, 5.0], amarillo: [3.5, 5.5] },
   ejercicio_min:    { verde: [90, 180],  amarillo: [60, 240] },
   radiacion_diaria: { verde: [0.0, 0.5], amarillo: [0.0, 1.0] }
 };
@@ -1073,7 +1559,6 @@ function iniciarDatosLocales() {
       sueno_calidad: 4.0 - (d > 22 ? 1.5 : 0),
       animo: 4.0 - (d > 20 ? 1.2 : 0),
       carga_trabajo: 2.5 + (d > 20 ? 1.8 : 0),
-      onsd_mm: 4.3 + deg*0.5 + (d > 20 ? 0.35 : 0),
       ejercicio_min: 120 - deg*20,
       radiacion_diaria: 0.35 + (d === 15 ? 3.5 : 0.05)
     };
@@ -1594,18 +2079,14 @@ async function cargarColaValidacion() {
         dia_prediccion: ESTADO_APP.dia_mision - 7,
         dia_objetivo: ESTADO_APP.dia_mision,
         fatiga_pred: 1, // Amarillo
-        fatiga_real_observada: 1,
-        onsd_pred: 4.45,
-        onsd_real_observado: 4.50
+        fatiga_real_observada: 1
       },
       {
         id: 102,
         dia_prediccion: ESTADO_APP.dia_mision - 8,
         dia_objetivo: ESTADO_APP.dia_mision - 1,
         fatiga_pred: 0, // Verde
-        fatiga_real_observada: 1, // Amarillo observado
-        onsd_pred: 4.30,
-        onsd_real_observado: 4.60
+        fatiga_real_observada: 1 // Amarillo observado
       }
     ];
   }
@@ -1622,8 +2103,6 @@ async function cargarColaValidacion() {
       <div class="caso-info-grid">
         <div><strong>Fatiga Predicha:</strong> ${nombresFatiga[c.fatiga_pred] || c.fatiga_pred}</div>
         <div><strong>Fatiga Observada:</strong> ${nombresFatiga[c.fatiga_real_observada] || c.fatiga_real_observada}</div>
-        <div><strong>ONSD Predicho:</strong> ${c.onsd_pred?.toFixed(2) || '—'} mm</div>
-        <div><strong>ONSD Observado:</strong> ${c.onsd_real_observado?.toFixed(2) || '—'} mm</div>
       </div>
       <div class="botones-decision-humana">
         <button class="btn-val-confirmar" onclick="resolverCasoValidacion(${c.id}, 'confirmar')">
@@ -1829,6 +2308,7 @@ function cambiarVista(idVista, btnElement) {
 
 function mostrarToast(msg) {
   const t = document.getElementById("toast-global");
+  if (!t) return;
   t.textContent = msg;
   t.style.display = "block";
   clearTimeout(window._t);
