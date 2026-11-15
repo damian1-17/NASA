@@ -9,14 +9,26 @@ Todo cambio pasa por cola de validación protegida por PIN y registro de auditor
 import json
 import sqlite3
 import shutil
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
 RUTA_BASE = Path(__file__).parent
-RUTA_DB = RUTA_BASE / "datos" / "astrosalud.db"
+if os.environ.get("VERCEL"):
+    RUTA_DB = Path("/tmp/astrosalud.db")
+    RUTA_VERSIONES = Path("/tmp/versiones")
+    db_orig = RUTA_BASE / "datos" / "astrosalud.db"
+    if db_orig.exists() and not RUTA_DB.exists():
+        try:
+            shutil.copy(db_orig, RUTA_DB)
+        except Exception:
+            pass
+else:
+    RUTA_DB = RUTA_BASE / "datos" / "astrosalud.db"
+    RUTA_VERSIONES = RUTA_BASE / "modelos" / "versiones"
+
 RUTA_MODELOS = RUTA_BASE / "modelos"
-RUTA_VERSIONES = RUTA_MODELOS / "versiones"
 RUTA_CONSEJOS = RUTA_BASE / "consejos.json"
 
 PIN_POR_DEFECTO = "1234"

@@ -28,10 +28,24 @@ try:
 except ImportError:
     HAS_FASTAPI = False
 
+import os
+
 RUTA_BASE  = Path(__file__).parent
 RUTA_APP   = RUTA_BASE / "app"
-RUTA_DB    = RUTA_BASE / "datos" / "astrosalud.db"
-RUTA_MOD   = RUTA_BASE / "modelos"
+if os.environ.get("VERCEL"):
+    RUTA_DB = Path("/tmp/astrosalud.db")
+    RUTA_MOD = RUTA_BASE / "modelos"
+    db_orig = RUTA_BASE / "datos" / "astrosalud.db"
+    if db_orig.exists() and not RUTA_DB.exists():
+        try:
+            import shutil
+            shutil.copy(db_orig, RUTA_DB)
+        except Exception:
+            pass
+else:
+    RUTA_DB    = RUTA_BASE / "datos" / "astrosalud.db"
+    RUTA_MOD   = RUTA_BASE / "modelos"
+
 PUERTO     = 8000
 
 # ─── Inicialización de módulos ────────────────────────────────────────────────

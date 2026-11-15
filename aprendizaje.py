@@ -23,12 +23,24 @@ from sklearn.linear_model import SGDClassifier, SGDRegressor
 from sklearn.metrics import f1_score, mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 
+import os
 warnings.filterwarnings("ignore")
 
-RUTA_BASE    = Path(__file__).parent
-RUTA_DB      = RUTA_BASE / "datos" / "astrosalud.db"
+RUTA_BASE = Path(__file__).parent
+if os.environ.get("VERCEL"):
+    RUTA_DB = Path("/tmp/astrosalud.db")
+    RUTA_VERSION = Path("/tmp/versiones")
+    db_orig = RUTA_BASE / "datos" / "astrosalud.db"
+    if db_orig.exists() and not RUTA_DB.exists():
+        try:
+            shutil.copy(db_orig, RUTA_DB)
+        except Exception:
+            pass
+else:
+    RUTA_DB = RUTA_BASE / "datos" / "astrosalud.db"
+    RUTA_VERSION = RUTA_BASE / "modelos" / "versiones"
+
 RUTA_MODELOS = RUTA_BASE / "modelos"
-RUTA_VERSION = RUTA_MODELOS / "versiones"
 
 TOLERANCIA_EMPEORAMIENTO = 0.05
 MIN_DATOS_ACTUALIZACION  = 3      # mínimo de registros humanos validados
