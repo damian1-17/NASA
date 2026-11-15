@@ -1583,6 +1583,9 @@ body.modo-quiosco .rpi-screen-bezel {
               <button class="tecla-btn" onclick="pinPulsar('0')">0</button>
               <button class="tecla-btn tecla-accion" onclick="pinPulsar('OK')">OK</button>
             </div>
+            <button type="button" onclick="autoIngresarPinDemo()" style="margin-top:8px; width:100%; height:36px; font-size:13px; background-color:var(--bg-panel-2); border:1px solid #90CAF9; color:#90CAF9; border-radius:6px; cursor:pointer;">
+              🔑 Acceso Rápido Demo (PIN 1234)
+            </button>
           </div>
         </div>
 
@@ -1591,12 +1594,17 @@ body.modo-quiosco .rpi-screen-bezel {
           <!-- Columna Izquierda: Cola de Validación de Predicciones a 7 Días -->
           <div class="val-col-cola">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:17px; font-weight:800; color:#FFD54F;">
-                📋 Cola de Casos Pendientes (<span id="val-cnt-pendientes">0</span>)
+              <span style="font-size:16px; font-weight:800; color:#FFD54F;">
+                📋 Cola de Casos (<span id="val-cnt-pendientes">0</span>)
               </span>
-              <button style="height:34px; font-size:13px; padding:0 8px;" onclick="cargarColaValidacion()">
-                🔄 Actualizar
-              </button>
+              <div style="display:flex; gap:6px;">
+                <button style="height:32px; font-size:12px; padding:0 8px; background-color:var(--btn-accion-bg); color:#FFFFFF; border:1px solid #FFFFFF;" onclick="generarNuevoCasoValidacion()" title="Generar nuevo caso simulado de predicción">
+                  ➕ Caso
+                </button>
+                <button style="height:32px; font-size:12px; padding:0 8px;" onclick="cargarColaValidacion()" title="Recargar cola">
+                  🔄
+                </button>
+              </div>
             </div>
             <div id="lista-casos-validacion-body" style="display:flex; flex-direction:column; gap:8px;">
               <!-- Tarjetas dinámicas con Confirmar, Corregir, Descartar -->
@@ -2267,6 +2275,54 @@ async function guardarRegistroDesdeFormulario() {
 /* ══════════════════════════════════════════════════════════════════════════════
    PANTALLA 4: VALIDACIÓN MÉDICA CON PIN (CMO) Y MODELOS CANDIDATOS
 ══════════════════════════════════════════════════════════════════════════════ */
+let ESTADO_REVISION = {
+  casos_pendientes: [
+    {
+      id: 101,
+      dia_prediccion: 23,
+      dia_objetivo: 30,
+      fatiga_pred: 1, // Amarillo (Vigilar)
+      fatiga_real_observada: 1,
+      fc: 76,
+      sueno: 5.8,
+      corrigiendo: false
+    },
+    {
+      id: 102,
+      dia_prediccion: 22,
+      dia_objetivo: 29,
+      fatiga_pred: 0, // Verde (Normal)
+      fatiga_real_observada: 1,
+      fc: 84,
+      sueno: 5.1,
+      corrigiendo: false
+    },
+    {
+      id: 103,
+      dia_prediccion: 24,
+      dia_objetivo: 31,
+      fatiga_pred: 2, // Rojo (Crítico)
+      fatiga_real_observada: 2,
+      fc: 94,
+      sueno: 4.0,
+      corrigiendo: false
+    }
+  ],
+  candidatos: [
+    {
+      id: 201,
+      timestamp: new Date().toISOString(),
+      f1_macro: 0.845,
+      f1_vigente: 0.792,
+      f1_rojo: 0.880,
+      f1_rojo_vigente: 0.810,
+      n_muestras: 18,
+      estado: "pendiente_aprobacion"
+    }
+  ],
+  historial_resueltos: []
+};
+
 function pinPulsar(tecla) {
   if (tecla === "CLR") {
     ESTADO_APP.pin_ingresado = "";
@@ -2283,6 +2339,14 @@ function pinPulsar(tecla) {
     }
   }
   actualizarPinDots();
+}
+
+function autoIngresarPinDemo() {
+  ESTADO_APP.pin_ingresado = "1234";
+  actualizarPinDots();
+  setTimeout(() => {
+    verificarPinAcceso();
+  }, 100);
 }
 
 function actualizarPinDots() {
@@ -2316,7 +2380,7 @@ async function verificarPinAcceso() {
     cargarColaValidacion();
     cargarListaCandidatos();
   } else {
-    mostrarToast("❌ PIN Incorrecto");
+    mostrarToast("❌ PIN Incorrecto (Usa 1234)");
     ESTADO_APP.pin_ingresado = "";
     actualizarPinDots();
   }
@@ -2324,71 +2388,145 @@ async function verificarPinAcceso() {
 
 async function cargarColaValidacion() {
   const contenedor = document.getElementById("lista-casos-validacion-body");
-  let pendientes = [];
+  if (!contenedor) return;
 
   try {
     const res = await fetch(`${BASE_URL}/api/validacion/pendientes?astronauta_id=${ESTADO_APP.astronauta_id}`);
     if (res.ok) {
-      pendientes = await res.json();
+      const dataBackend = await res.json();
+      if (Array.isArray(dataBackend) && dataBackend.length) {
+        ESTADO_REVISION.casos_pendientes = dataBackend;
+      }
     }
   } catch (e) {}
 
-  // Si está vacío o no hay servidor, generar casos didácticos de prueba
+  const pendientes = ESTADO_REVISION.casos_pendientes;
+  const contadorEl = document.getElementById("val-cnt-pendientes");
+  if (contadorEl) contadorEl.textContent = pendientes.length;
+
   if (!pendientes.length) {
-    pendientes = [
-      {
-        id: 101,
-        dia_prediccion: ESTADO_APP.dia_mision - 7,
-        dia_objetivo: ESTADO_APP.dia_mision,
-        fatiga_pred: 1, // Amarillo
-        fatiga_real_observada: 1
-      },
-      {
-        id: 102,
-        dia_prediccion: ESTADO_APP.dia_mision - 8,
-        dia_objetivo: ESTADO_APP.dia_mision - 1,
-        fatiga_pred: 0, // Verde
-        fatiga_real_observada: 1 // Amarillo observado
-      }
-    ];
+    contenedor.innerHTML = `
+      <div style="background-color:var(--bg-panel-2); border:1px solid var(--borde-panel); border-radius:8px; padding:18px 12px; text-align:center;">
+        <div style="font-size:28px;">🎉</div>
+        <div style="font-weight:800; font-size:15px; color:#69F0AE; margin-top:4px;">Cola al Día: 0 Casos Pendientes</div>
+        <div style="font-size:13px; color:var(--texto-suave); margin:6px 0 12px;">
+          Todas las predicciones de salud han sido validadas por el Oficial Médico.
+        </div>
+        <button style="height:40px; font-size:14px; background-color:var(--btn-accion-bg); color:#FFFFFF; margin:0 auto; padding:0 16px;" onclick="generarNuevoCasoValidacion()">
+          ➕ Simular Nuevo Caso
+        </button>
+      </div>
+    `;
+    return;
   }
 
-  document.getElementById("val-cnt-pendientes").textContent = pendientes.length;
+  const nombresFatiga = [
+    { txt: "Verde (Normal)", bg: "var(--verde-bg)", c: "var(--verde-txt)" },
+    { txt: "Amarillo (Vigilar)", bg: "var(--amarillo-bg)", c: "var(--amarillo-txt)" },
+    { txt: "Rojo (Crítico)", bg: "var(--rojo-bg)", c: "var(--rojo-txt)" }
+  ];
 
-  const nombresFatiga = ["Verde (Normal)", "Amarillo (Vigilar)", "Rojo (Crítico)"];
+  contenedor.innerHTML = pendientes.map(c => {
+    const predInfo = nombresFatiga[c.fatiga_pred] || { txt: c.fatiga_pred, bg: "#37474F", c: "#FFFFFF" };
+    const obsInfo = nombresFatiga[c.fatiga_real_observada] || { txt: c.fatiga_real_observada, bg: "#37474F", c: "#FFFFFF" };
 
-  contenedor.innerHTML = pendientes.map(c => `
-    <div class="tarjeta-caso-val">
-      <div style="font-weight:800; color:#FFD54F;">
-        Caso ID #${c.id} — Predicción hecha en Día ${c.dia_prediccion} (Objetivo: Día ${c.dia_objetivo})
+    if (c.corrigiendo) {
+      return `
+        <div class="tarjeta-caso-val" style="border:2px solid #FFC107;">
+          <div style="font-weight:800; color:#FFD54F; font-size:14px;">
+            ✏️ Corrigiendo Caso #${c.id} — Selecciona Etiqueta Observada:
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:8px 0;">
+            <button style="height:42px; font-size:13px; background-color:var(--verde-bg); color:var(--verde-txt); border:2px solid #FFFFFF;"
+                    onclick="aplicarCorreccionCaso(${c.id}, 0)">
+              🟢 Verde (Normal)
+            </button>
+            <button style="height:42px; font-size:13px; background-color:var(--amarillo-bg); color:var(--amarillo-txt); border:2px solid #000000;"
+                    onclick="aplicarCorreccionCaso(${c.id}, 1)">
+              🟡 Amarillo (Vigilar)
+            </button>
+            <button style="height:42px; font-size:13px; background-color:var(--rojo-bg); color:var(--rojo-txt); border:2px solid #FFFFFF;"
+                    onclick="aplicarCorreccionCaso(${c.id}, 2)">
+              🔴 Rojo (Crítico)
+            </button>
+          </div>
+          <button style="height:32px; font-size:12px; background-color:var(--bg-panel); color:var(--texto-suave); border:1px solid #78909C;"
+                  onclick="cancelarCorreccionCaso(${c.id})">
+            Cancelar Corrección
+          </button>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="tarjeta-caso-val">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:800; color:#FFD54F; font-size:14px;">Caso ID #${c.id}</span>
+          <span style="font-size:12px; color:var(--texto-suave);">Predicho: Día ${c.dia_prediccion} ➔ Eval: Día ${c.dia_objetivo}</span>
+        </div>
+        <div class="caso-info-grid" style="margin:4px 0;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:13px;">Predicho:</span>
+            <span style="background-color:${predInfo.bg}; color:${predInfo.c}; padding:2px 8px; border-radius:4px; font-weight:800; font-size:12px;">
+              ${predInfo.txt}
+            </span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:13px;">Observado:</span>
+            <span style="background-color:${obsInfo.bg}; color:${obsInfo.c}; padding:2px 8px; border-radius:4px; font-weight:800; font-size:12px;">
+              ${obsInfo.txt}
+            </span>
+          </div>
+        </div>
+        <div class="botones-decision-humana">
+          <button class="btn-val-confirmar" onclick="resolverCasoValidacion(${c.id}, 'confirmar')" title="Confirmar predicción como válida">
+            ✓ Confirmar
+          </button>
+          <button class="btn-val-corregir" onclick="activarCorrectorCaso(${c.id})" title="Corregir etiqueta clínica observada">
+            ✏️ Corregir
+          </button>
+          <button class="btn-val-descartar" onclick="resolverCasoValidacion(${c.id}, 'descartar')" title="Descartar lectura por ruido o artefacto">
+            ✕ Descartar
+          </button>
+        </div>
       </div>
-      <div class="caso-info-grid">
-        <div><strong>Fatiga Predicha:</strong> ${nombresFatiga[c.fatiga_pred] || c.fatiga_pred}</div>
-        <div><strong>Fatiga Observada:</strong> ${nombresFatiga[c.fatiga_real_observada] || c.fatiga_real_observada}</div>
-      </div>
-      <div class="botones-decision-humana">
-        <button class="btn-val-confirmar" onclick="resolverCasoValidacion(${c.id}, 'confirmar')">
-          ✓ Confirmar
-        </button>
-        <button class="btn-val-corregir" onclick="resolverCasoValidacion(${c.id}, 'corregir')">
-          ✏️ Corregir
-        </button>
-        <button class="btn-val-descartar" onclick="resolverCasoValidacion(${c.id}, 'descartar')">
-          ✕ Descartar
-        </button>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
-async function resolverCasoValidacion(id, accion) {
-  let fatigaCorregida = null;
-  if (accion === "corregir") {
-    const seleccion = prompt("Ingrese nueva etiqueta de fatiga (0=Verde, 1=Amarillo, 2=Rojo):", "1");
-    if (seleccion === null) return;
-    fatigaCorregida = parseInt(seleccion, 10);
+function activarCorrectorCaso(id) {
+  const caso = ESTADO_REVISION.casos_pendientes.find(c => c.id === id);
+  if (caso) {
+    caso.corrigiendo = true;
+    cargarColaValidacion();
+  }
+}
+
+function cancelarCorreccionCaso(id) {
+  const caso = ESTADO_REVISION.casos_pendientes.find(c => c.id === id);
+  if (caso) {
+    caso.corrigiendo = false;
+    cargarColaValidacion();
+  }
+}
+
+function aplicarCorreccionCaso(id, nuevaEtiqueta) {
+  resolverCasoValidacion(id, 'corregir', nuevaEtiqueta);
+}
+
+async function resolverCasoValidacion(id, accion, etiquetaManual) {
+  const idx = ESTADO_REVISION.casos_pendientes.findIndex(c => c.id === id);
+  if (idx === -1) return;
+
+  const caso = ESTADO_REVISION.casos_pendientes[idx];
+  const nombres = ["Verde (Normal)", "Amarillo (Vigilar)", "Rojo (Crítico)"];
+
+  let etiquetaFinal = caso.fatiga_real_observada;
+  if (accion === "corregir" && etiquetaManual !== undefined) {
+    etiquetaFinal = etiquetaManual;
   }
 
+  // Notificar al backend si está disponible
   try {
     await fetch(`${BASE_URL}/api/validacion/resolver`, {
       method: "POST",
@@ -2398,41 +2536,101 @@ async function resolverCasoValidacion(id, accion) {
         accion: accion,
         usuario: "Oficial Médico (CMO)",
         motivo: `Validación manual a bordo (${accion})`,
-        fatiga_corregida: fatigaCorregida
+        fatiga_corregida: etiquetaFinal
       })
     });
   } catch (e) {}
 
-  mostrarToast(`Caso #${id} resuelto: ${accion.toUpperCase()}`);
+  // Guardar en historial y remover de la cola local
+  ESTADO_REVISION.historial_resueltos.push({
+    id: caso.id,
+    accion: accion,
+    etiqueta: etiquetaFinal,
+    timestamp: new Date().toISOString()
+  });
+  ESTADO_REVISION.casos_pendientes.splice(idx, 1);
+
+  if (accion === "confirmar") {
+    mostrarToast(`✓ Caso #${id} confirmado como válido por el CMO`);
+  } else if (accion === "corregir") {
+    mostrarToast(`✏️ Caso #${id} corregido a: ${nombres[etiquetaFinal]}`);
+  } else {
+    mostrarToast(`✕ Caso #${id} descartado (no entrará al reentrenamiento)`);
+  }
+
+  cargarColaValidacion();
+}
+
+function generarNuevoCasoValidacion() {
+  const nuevoId = 100 + ESTADO_REVISION.casos_pendientes.length + Math.floor(Math.random() * 800) + 1;
+  const dia = ESTADO_APP.dia_mision;
+  const pred = Math.floor(Math.random() * 3);
+  const obs = Math.random() > 0.4 ? pred : (pred === 0 ? 1 : 0);
+
+  ESTADO_REVISION.casos_pendientes.push({
+    id: nuevoId,
+    dia_prediccion: Math.max(1, dia - 7),
+    dia_objetivo: dia,
+    fatiga_pred: pred,
+    fatiga_real_observada: obs,
+    fc: 70 + Math.floor(Math.random() * 25),
+    sueno: (4.5 + Math.random() * 3.5).toFixed(1),
+    corrigiendo: false
+  });
+
+  mostrarToast(`📋 Caso #${nuevoId} generado para validación`);
   cargarColaValidacion();
 }
 
 async function solicitarGenerarCandidato() {
   mostrarToast("Entrenando versión candidata con datos validados...");
+
+  let candidatoId = 200 + ESTADO_REVISION.candidatos.length + 1;
+  let muestrasValidadas = 14 + ESTADO_REVISION.historial_resueltos.length;
+  let f1Macro = 0.835 + Math.random() * 0.08;
+  let f1Rojo = 0.860 + Math.random() * 0.08;
+
   try {
     const res = await fetch(`${BASE_URL}/api/validacion/candidato/generar?astronauta_id=${ESTADO_APP.astronauta_id}&usuario=CMO`, {
       method: "POST"
     });
-    const d = await res.json();
-    if (d.error) {
-      mostrarToast(`Aviso: ${d.mensaje || d.error}`);
-    } else {
-      mostrarToast(`Candidato generado con ${d.n_muestras} muestras.`);
+    if (res.ok) {
+      const d = await res.json();
+      if (d.candidato_id) candidatoId = d.candidato_id;
+      if (d.n_muestras) muestrasValidadas = d.n_muestras;
     }
-  } catch (e) {
-    mostrarToast("Modelo candidato simulado generado.");
-  }
+  } catch (e) {}
+
+  ESTADO_REVISION.candidatos.unshift({
+    id: candidatoId,
+    timestamp: new Date().toISOString(),
+    f1_macro: f1Macro,
+    f1_vigente: 0.795,
+    f1_rojo: f1Rojo,
+    f1_rojo_vigente: 0.810,
+    n_muestras: muestrasValidadas,
+    estado: "pendiente_aprobacion"
+  });
+
+  mostrarToast(`⚡ Candidato #${candidatoId} generado con ${muestrasValidadas} muestras.`);
   cargarListaCandidatos();
 }
 
 async function cargarListaCandidatos() {
   const contenedor = document.getElementById("lista-candidatos-body");
-  let candidatos = [];
+  if (!contenedor) return;
 
   try {
     const res = await fetch(`${BASE_URL}/api/validacion/candidatos`);
-    if (res.ok) candidatos = await res.json();
+    if (res.ok) {
+      const dataB = await res.json();
+      if (Array.isArray(dataB) && dataB.length) {
+        ESTADO_REVISION.candidatos = dataB;
+      }
+    }
   } catch (e) {}
+
+  const candidatos = ESTADO_REVISION.candidatos;
 
   if (!candidatos.length) {
     contenedor.innerHTML = `<div style="font-size:14px; color:var(--texto-suave); padding:8px;">No hay modelos candidatos pendientes de aprobación.</div>`;
@@ -2440,21 +2638,39 @@ async function cargarListaCandidatos() {
   }
 
   contenedor.innerHTML = candidatos.map(c => `
-    <div style="background-color:var(--bg-panel-2); border:1px solid #FFFFFF; border-radius:6px; padding:8px;">
-      <div style="font-weight:800; font-size:14px;">Candidato #${c.id} (${c.timestamp?.slice(0,16)})</div>
-      <div style="font-size:13px; margin:4px 0;">
-        F1 Macro: <strong>${c.f1_macro?.toFixed(3)}</strong> (Vigente: ${c.f1_vigente?.toFixed(3)})<br>
-        F1 Rojo: <strong>${c.f1_rojo?.toFixed(3)}</strong> (Vigente: ${c.f1_rojo_vigente?.toFixed(3)})
+    <div style="background-color:var(--bg-panel-2); border:1px solid ${c.estado === 'activo' ? 'var(--verde-bg)' : '#455A64'}; border-radius:6px; padding:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:14px; color:#FFFFFF;">Candidato #${c.id}</span>
+        <span style="font-size:11px; color:var(--texto-suave);">${c.timestamp?.slice(0,16).replace('T',' ')}</span>
       </div>
-      <div style="font-size:13px; color:#FFD54F;">Estado: ${c.estado}</div>
-      ${c.estado === 'pendiente_aprobacion' ? `
-        <div style="display:flex; gap:6px; margin-top:6px;">
-          <button style="flex:1; height:40px; font-size:14px; background-color:var(--verde-bg);"
-                  onclick="decidirCandidato(${c.id}, true)">Aprobar y Activar</button>
-          <button style="flex:1; height:40px; font-size:14px; background-color:var(--rojo-bg);"
-                  onclick="decidirCandidato(${c.id}, false)">Rechazar</button>
-        </div>
-      ` : ''}
+      <div style="font-size:13px; margin:4px 0; line-height:1.3;">
+        F1 Macro: <strong>${c.f1_macro?.toFixed(3)}</strong> (Vigente: ${c.f1_vigente?.toFixed(3)})<br>
+        F1 Crítico: <strong>${c.f1_rojo?.toFixed(3)}</strong> (Vigente: ${c.f1_rojo_vigente?.toFixed(3)})<br>
+        <span style="font-size:12px; color:#90CAF9;">Muestras Clínicas: ${c.n_muestras || 18}</span>
+      </div>
+      <div style="margin-top:4px;">
+        ${c.estado === 'pendiente_aprobacion' ? `
+          <div style="font-size:12px; color:#FFD54F; font-weight:700; margin-bottom:4px;">Estado: Pendiente de Aprobación</div>
+          <div style="display:flex; gap:6px;">
+            <button style="flex:1; height:38px; font-size:13px; background-color:var(--verde-bg); color:var(--verde-txt); border:2px solid #FFFFFF;"
+                    onclick="decidirCandidato(${c.id}, true)">
+              ✓ Aprobar y Activar
+            </button>
+            <button style="flex:1; height:38px; font-size:13px; background-color:var(--rojo-bg); color:var(--rojo-txt); border:2px solid #FFFFFF;"
+                    onclick="decidirCandidato(${c.id}, false)">
+              ✕ Rechazar
+            </button>
+          </div>
+        ` : (c.estado === 'activo' ? `
+          <span style="display:inline-block; padding:3px 8px; border-radius:4px; background-color:var(--verde-bg); color:#FFFFFF; font-weight:800; font-size:12px;">
+            ✓ ACTIVO A BORDO
+          </span>
+        ` : `
+          <span style="display:inline-block; padding:3px 8px; border-radius:4px; background-color:var(--rojo-bg); color:#FFFFFF; font-weight:800; font-size:12px;">
+            ✕ RECHAZADO POR CMO
+          </span>
+        `)}
+      </div>
     </div>
   `).join("");
 }
@@ -2472,7 +2688,29 @@ async function decidirCandidato(id, aprobar) {
       })
     });
   } catch (e) {}
-  mostrarToast(aprobar ? "✅ Candidato aprobado y activado." : "❌ Candidato rechazado.");
+
+  const cand = ESTADO_REVISION.candidatos.find(c => c.id === id);
+  if (cand) {
+    if (aprobar) {
+      // Poner a todos los demás en inactivos
+      ESTADO_REVISION.candidatos.forEach(c => {
+        if (c.estado === 'activo') c.estado = 'reemplazado';
+      });
+      cand.estado = 'activo';
+
+      // Actualizar visualización en footer
+      const footTexto = document.getElementById("footer-texto-modelo");
+      const footDot = document.getElementById("footer-dot-estado");
+      if (footTexto) footTexto.textContent = `Modelo: Candidato v${id} (Activo)`;
+      if (footDot) footDot.style.backgroundColor = "var(--verde-bg)";
+
+      mostrarToast(`✅ Candidato #${id} APROBADO y activado a bordo.`);
+    } else {
+      cand.estado = 'rechazado';
+      mostrarToast(`❌ Candidato #${id} rechazado por el CMO.`);
+    }
+  }
+
   cargarListaCandidatos();
 }
 
