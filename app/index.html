@@ -172,11 +172,11 @@ nav {
 }
 nav button {
   width: 82px;
-  height: 60px;
-  min-height: 54px;
-  padding: 4px 2px;
+  height: 56px;
+  min-height: 50px;
+  padding: 3px 2px;
   flex-direction: column;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   background-color: var(--bg-panel-2);
   color: #FFFFFF;
@@ -752,6 +752,208 @@ footer {
   white-space: pre-wrap;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 6: SIMULACIÓN DE ENTORNO (NAVE ESPACIAL / ROVER)
+══════════════════════════════════════════════════════════════════════════════ */
+#pantalla-entorno {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+#pantalla-entorno.pantalla-activa {
+  display: flex;
+}
+
+.entorno-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  flex-shrink: 0;
+  gap: 8px;
+}
+.entorno-tabs {
+  display: flex;
+  gap: 6px;
+}
+.btn-tab-entorno {
+  min-height: 38px;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: var(--bg-panel-2);
+  color: var(--texto-suave);
+  border: 1px solid var(--borde-panel);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-tab-entorno.activo {
+  background-color: var(--btn-accion-bg);
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+}
+
+.entorno-badge-estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--borde-panel);
+}
+
+.entorno-layout-split {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Columna Izquierda: Grid 2x3 de métricas de soporte vital / rover */
+.entorno-grid-metricas {
+  flex: 1.25;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  min-height: 0;
+}
+.tarjeta-entorno {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tarjeta-entorno-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--texto-suave);
+  font-weight: 700;
+}
+.tarjeta-entorno-valor-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.tarjeta-entorno-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+.tarjeta-entorno-unidad {
+  font-size: 12px;
+  color: #90CAF9;
+  font-weight: 700;
+}
+.tarjeta-entorno-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.entorno-tag-status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+/* Columna Derecha: Diagrama y Simulador de eventos */
+.entorno-panel-control {
+  flex: 0.95;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.entorno-svg-visor {
+  height: 130px;
+  background-color: #070d18;
+  border: 1px solid var(--borde-panel);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.entorno-svg-visor svg {
+  width: 100%;
+  height: 100%;
+}
+
+.entorno-alerta-box {
+  min-height: 52px;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--borde-panel);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.entorno-acciones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  flex: 1;
+}
+.btn-sim-evento {
+  min-height: 44px;
+  height: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  line-height: 1.15;
+  cursor: pointer;
+}
+.btn-sim-normal {
+  background-color: var(--verde-bg);
+  color: var(--verde-txt);
+  border: 2px solid #FFFFFF;
+}
+.btn-sim-alerta {
+  background-color: var(--amarillo-bg);
+  color: var(--amarillo-txt);
+  border: 2px solid #000000;
+}
+.btn-sim-critico {
+  background-color: var(--rojo-bg);
+  color: var(--rojo-txt);
+  border: 2px solid #FFFFFF;
+}
+.btn-sim-accion {
+  background-color: var(--btn-accion-bg);
+  color: var(--btn-accion-txt);
+  border: 2px solid #FFFFFF;
+}
+
 /* ── Toast de feedback ─────────────────────────────────────────────────── */
 #toast-global {
   position: absolute;
@@ -1242,6 +1444,10 @@ body.modo-quiosco .rpi-screen-bezel {
         <span class="icon">🩺</span>
         <span>Revisión</span>
       </button>
+      <button id="nav-entorno" onclick="cambiarVista('entorno', this)">
+        <span class="icon">🛸</span>
+        <span>Entorno</span>
+      </button>
       <button id="nav-exportar" onclick="cambiarVista('exportar', this)">
         <span class="icon">📡</span>
         <span>Tierra</span>
@@ -1426,6 +1632,62 @@ body.modo-quiosco .rpi-screen-bezel {
           </button>
         </div>
         <pre class="visor-json-pre" id="visor-json-salida">Cargando paquete...</pre>
+      </div>
+
+      <!-- ═════════ PANTALLA 6: SIMULACIÓN DE ENTORNO NAVE / ROVER ═════════ -->
+      <div id="pantalla-entorno" class="pantalla">
+        <div class="entorno-top-bar">
+          <div class="entorno-tabs">
+            <button id="btn-modo-nave" class="btn-tab-entorno activo" onclick="cambiarModoEntorno('nave')">
+              🛰️ Nave Espacial (ECLSS)
+            </button>
+            <button id="btn-modo-rover" class="btn-tab-entorno" onclick="cambiarModoEntorno('rover')">
+              🚜 Rover de Exploración
+            </button>
+          </div>
+          <div class="entorno-badge-estado" id="entorno-badge-estado">
+            <span id="entorno-status-dot" style="width:10px; height:10px; border-radius:50%; background-color:var(--verde-bg); display:inline-block;"></span>
+            <span id="entorno-status-txt">Sistemas Nominales</span>
+          </div>
+        </div>
+
+        <div class="entorno-layout-split">
+          <!-- Columna Izquierda: Grid de 6 Tarjetas Ambientales -->
+          <div class="entorno-grid-metricas" id="entorno-grid-tarjetas">
+            <!-- Render dinámico desde JS -->
+          </div>
+
+          <!-- Columna Derecha: Esquema Visual SVG + Inyección de Simulaciones -->
+          <div class="entorno-panel-control">
+            <div class="entorno-svg-visor" id="entorno-svg-contenedor">
+              <!-- Render dinámico del SVG de Nave o Rover -->
+            </div>
+
+            <div class="entorno-alerta-box" id="entorno-diagnostico-box">
+              <strong id="entorno-diag-titulo" style="color:#00E676;">✓ Telemetría en Parámetros Seguros</strong>
+              <span id="entorno-diag-desc" style="color:var(--texto-suave);">Todos los subsistemas presurizados y térmicos operando en balance.</span>
+            </div>
+
+            <div class="entorno-acciones-grid">
+              <button class="btn-sim-evento btn-sim-critico" onclick="simularEventoEntorno('radiacion')">
+                <span>⚡ Tormenta Solar</span>
+                <span style="font-size:10px; font-weight:normal;">Pico Radiación CME</span>
+              </button>
+              <button class="btn-sim-evento btn-sim-alerta" onclick="simularEventoEntorno('presion')">
+                <span>💨 Microfuga Cabina</span>
+                <span style="font-size:10px; font-weight:normal;">Caída Presión & O₂</span>
+              </button>
+              <button class="btn-sim-evento btn-sim-alerta" onclick="simularEventoEntorno('polvo')">
+                <span>🌪️ Polvo / Temp</span>
+                <span style="font-size:10px; font-weight:normal;">Caída Solar & Frío</span>
+              </button>
+              <button class="btn-sim-evento btn-sim-normal" onclick="simularEventoEntorno('normal')">
+                <span>🔄 Normalizar</span>
+                <span style="font-size:10px; font-weight:normal;">Condiciones Nominales</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -2303,6 +2565,316 @@ function cambiarVista(idVista, btnElement) {
     }
   } else if (idVista === "exportar") {
     cargarPaqueteTierra();
+  } else if (idVista === "entorno") {
+    renderizarPantallaEntorno();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PANTALLA 6: SIMULACIÓN DE ENTORNO (NAVE ESPACIAL / ROVER)
+══════════════════════════════════════════════════════════════════════════════ */
+let ESTADO_ENTORNO = {
+  modo: "nave", // "nave" | "rover"
+  anomalia: null, // null | "radiacion" | "presion" | "polvo"
+  presion_kpa: 101.3,
+  o2_pct: 20.9,
+  co2_pct: 0.35,
+  temp_int_c: 21.5,
+  temp_ext_c: -65.0,
+  rad_instantanea: 0.42,
+  bateria_pct: 94,
+  potencia_kw: 4.8,
+  polvo_opacidad_pct: 2,
+  distancia_km: 18.4
+};
+
+function cambiarModoEntorno(modo) {
+  ESTADO_ENTORNO.modo = modo;
+  const btnNave = document.getElementById("btn-modo-nave");
+  const btnRover = document.getElementById("btn-modo-rover");
+  if (btnNave) btnNave.classList.toggle("activo", modo === "nave");
+  if (btnRover) btnRover.classList.toggle("activo", modo === "rover");
+
+  if (!ESTADO_ENTORNO.anomalia) {
+    if (modo === "nave") {
+      ESTADO_ENTORNO.presion_kpa = 101.3;
+      ESTADO_ENTORNO.o2_pct = 20.9;
+      ESTADO_ENTORNO.co2_pct = 0.35;
+      ESTADO_ENTORNO.temp_int_c = 21.5;
+      ESTADO_ENTORNO.temp_ext_c = -65.0;
+      ESTADO_ENTORNO.rad_instantanea = 0.42;
+      ESTADO_ENTORNO.bateria_pct = 94;
+      ESTADO_ENTORNO.potencia_kw = 4.8;
+    } else {
+      ESTADO_ENTORNO.presion_kpa = 70.3;
+      ESTADO_ENTORNO.o2_pct = 21.2;
+      ESTADO_ENTORNO.co2_pct = 0.38;
+      ESTADO_ENTORNO.temp_int_c = 20.4;
+      ESTADO_ENTORNO.temp_ext_c = -78.0;
+      ESTADO_ENTORNO.rad_instantanea = 0.58;
+      ESTADO_ENTORNO.bateria_pct = 89;
+      ESTADO_ENTORNO.potencia_kw = 2.6;
+    }
+  }
+
+  renderizarPantallaEntorno();
+  mostrarToast(modo === "nave" ? "🛰️ Entorno: Nave Espacial (ECLSS)" : "🚜 Entorno: Rover Presurizado");
+}
+
+function simularEventoEntorno(tipo) {
+  ESTADO_ENTORNO.anomalia = tipo === "normal" ? null : tipo;
+
+  if (tipo === "radiacion") {
+    ESTADO_ENTORNO.rad_instantanea = 16.8;
+    ESTADO_ENTORNO.bateria_pct = Math.max(50, ESTADO_ENTORNO.bateria_pct - 12);
+    mostrarToast("⚡ ALERTA: ¡Tormenta solar CME detectada!");
+  } else if (tipo === "presion") {
+    ESTADO_ENTORNO.presion_kpa = ESTADO_ENTORNO.modo === "nave" ? 74.2 : 54.0;
+    ESTADO_ENTORNO.o2_pct = 17.8;
+    ESTADO_ENTORNO.co2_pct = 0.68;
+    mostrarToast("💨 ALERTA: Caída de presión en cabina");
+  } else if (tipo === "polvo") {
+    ESTADO_ENTORNO.polvo_opacidad_pct = 82;
+    ESTADO_ENTORNO.temp_ext_c = -98.0;
+    ESTADO_ENTORNO.potencia_kw = 0.9;
+    mostrarToast("🌪️ VIGILANCIA: Tormenta de polvo activo");
+  } else {
+    if (ESTADO_ENTORNO.modo === "nave") {
+      ESTADO_ENTORNO.presion_kpa = 101.3;
+      ESTADO_ENTORNO.o2_pct = 20.9;
+      ESTADO_ENTORNO.co2_pct = 0.35;
+      ESTADO_ENTORNO.temp_int_c = 21.5;
+      ESTADO_ENTORNO.temp_ext_c = -65.0;
+      ESTADO_ENTORNO.rad_instantanea = 0.42;
+      ESTADO_ENTORNO.bateria_pct = 94;
+      ESTADO_ENTORNO.potencia_kw = 4.8;
+      ESTADO_ENTORNO.polvo_opacidad_pct = 2;
+    } else {
+      ESTADO_ENTORNO.presion_kpa = 70.3;
+      ESTADO_ENTORNO.o2_pct = 21.2;
+      ESTADO_ENTORNO.co2_pct = 0.38;
+      ESTADO_ENTORNO.temp_int_c = 20.4;
+      ESTADO_ENTORNO.temp_ext_c = -78.0;
+      ESTADO_ENTORNO.rad_instantanea = 0.58;
+      ESTADO_ENTORNO.bateria_pct = 89;
+      ESTADO_ENTORNO.potencia_kw = 2.6;
+      ESTADO_ENTORNO.polvo_opacidad_pct = 6;
+    }
+    mostrarToast("✓ Telemetría ambiental normalizada");
+  }
+
+  renderizarPantallaEntorno();
+}
+
+function renderizarPantallaEntorno() {
+  const grid = document.getElementById("entorno-grid-tarjetas");
+  const svgContenedor = document.getElementById("entorno-svg-contenedor");
+  const badgeDot = document.getElementById("entorno-status-dot");
+  const badgeTxt = document.getElementById("entorno-status-txt");
+  const diagTitulo = document.getElementById("entorno-diag-titulo");
+  const diagDesc = document.getElementById("entorno-diag-desc");
+
+  if (!grid || !svgContenedor) return;
+
+  const esNave = ESTADO_ENTORNO.modo === "nave";
+
+  const minPres = esNave ? 95 : 65;
+  const estPres = ESTADO_ENTORNO.presion_kpa < minPres ? { c: "var(--rojo-bg)", t: "#FFFFFF", txt: "Crítico", n: 2 } : { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Normal", n: 0 };
+  const estO2 = ESTADO_ENTORNO.o2_pct < 19.5 ? { c: "var(--rojo-bg)", t: "#FFFFFF", txt: "Bajo O₂", n: 2 } : { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Óptimo", n: 0 };
+  const estCO2 = ESTADO_ENTORNO.co2_pct > 0.5 ? { c: "var(--amarillo-bg)", t: "#000000", txt: "Elevado", n: 1 } : { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Nominal", n: 0 };
+  const estRad = ESTADO_ENTORNO.rad_instantanea > 5.0 ? { c: "var(--rojo-bg)", t: "#FFFFFF", txt: "PELIGRO", n: 2 } :
+                 (ESTADO_ENTORNO.rad_instantanea > 1.0 ? { c: "var(--amarillo-bg)", t: "#000000", txt: "Vigilar", n: 1 } : { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Seguro", n: 0 });
+  const estBat = ESTADO_ENTORNO.bateria_pct < 60 ? { c: "var(--amarillo-bg)", t: "#000000", txt: "Reserva", n: 1 } : { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Carga OK", n: 0 };
+  const estTemp = { c: "var(--verde-bg)", t: "#FFFFFF", txt: "Estable", n: 0 };
+
+  const maxNivel = Math.max(estPres.n, estO2.n, estCO2.n, estRad.n, estBat.n, estTemp.n);
+
+  if (maxNivel === 2) {
+    badgeDot.style.backgroundColor = "var(--rojo-bg)";
+    badgeTxt.textContent = "ALERTA AMBIENTAL CRÍTICA";
+    badgeTxt.style.color = "#FF8A80";
+
+    if (ESTADO_ENTORNO.anomalia === "radiacion") {
+      diagTitulo.textContent = "▲ PROTOCOLO REFUGIO SOLAR (CME)";
+      diagTitulo.style.color = "#FF5252";
+      diagDesc.textContent = "Dosis ionizante elevada por llamarada solar. Astronauta debe refugiarse en bodega blindada con tanques de agua.";
+    } else {
+      diagTitulo.textContent = "▲ FALLA EN PRESIÓN DE CABINA";
+      diagTitulo.style.color = "#FF5252";
+      diagDesc.textContent = "Despresurización detectada. Ajustar trajes presurizados EMU/Orion y aislar compartimentos con mamparos herméticos.";
+    }
+  } else if (maxNivel === 1) {
+    badgeDot.style.backgroundColor = "var(--amarillo-bg)";
+    badgeTxt.textContent = "VIGILANCIA DE AMBIENTE";
+    badgeTxt.style.color = "#FFD54F";
+
+    diagTitulo.textContent = "⚡ ANOMALÍA AMBIENTAL MODERADA";
+    diagTitulo.style.color = "#FFD54F";
+    diagDesc.textContent = ESTADO_ENTORNO.anomalia === "polvo" ?
+      "Tormenta de polvo marciano reduce eficiencia fotovoltaica. Conmutando soporte a generadores RTG de respaldo." :
+      "Scrubbers de CO₂ operando a máxima capacidad. Monitorear síntomas de cefalea y fatiga en el astronauta.";
+  } else {
+    badgeDot.style.backgroundColor = "var(--verde-bg)";
+    badgeTxt.textContent = "SISTEMAS NOMINALES (100%)";
+    badgeTxt.style.color = "#69F0AE";
+
+    diagTitulo.textContent = "✓ TELEMETRÍA EN BALANCE NOMINAL";
+    diagTitulo.style.color = "#00E676";
+    diagDesc.textContent = esNave ?
+      "Módulo presurizado de la nave en condiciones atmosféricas estándar de la NASA (1 atm, 21% O₂)." :
+      "Cabina de rover en atmósfera controlada para exploración geológica y despliegue EVA seguro.";
+  }
+
+  const metricasHTML = [
+    {
+      titulo: esNave ? "Presión Cabina" : "Presión Interior Rover",
+      valor: ESTADO_ENTORNO.presion_kpa.toFixed(1),
+      unidad: "kPa",
+      icono: "🎚️",
+      referencia: esNave ? "Nominal: 101.3 kPa" : "EVA: 70.3 kPa",
+      estado: estPres
+    },
+    {
+      titulo: "Concentración O₂",
+      valor: ESTADO_ENTORNO.o2_pct.toFixed(1),
+      unidad: "%",
+      icono: "🫁",
+      referencia: "Rango: 20.0% – 22.5%",
+      estado: estO2
+    },
+    {
+      titulo: "Dióxido de Carbono (CO₂)",
+      valor: ESTADO_ENTORNO.co2_pct.toFixed(2),
+      unidad: "%",
+      icono: "🧪",
+      referencia: "Límite seguro: < 0.50%",
+      estado: estCO2
+    },
+    {
+      titulo: "Radiación Ambiental",
+      valor: ESTADO_ENTORNO.rad_instantanea.toFixed(2),
+      unidad: "µSv/h",
+      icono: "☢️",
+      referencia: "Fondo cósmico seguro",
+      estado: estRad
+    },
+    {
+      titulo: "Climatización Térmica",
+      valor: `${ESTADO_ENTORNO.temp_int_c.toFixed(1)}°`,
+      unidad: `Ext: ${ESTADO_ENTORNO.temp_ext_c.toFixed(0)}°C`,
+      icono: "🌡️",
+      referencia: "Térmica regulada por loops",
+      estado: estTemp
+    },
+    {
+      titulo: esNave ? "Energía & Batería" : "Batería & Tracción Rover",
+      valor: `${ESTADO_ENTORNO.bateria_pct}%`,
+      unidad: `${ESTADO_ENTORNO.potencia_kw.toFixed(1)} kW`,
+      icono: "🔋",
+      referencia: esNave ? "Paneles solares activos" : `${ESTADO_ENTORNO.distancia_km} km recorridos`,
+      estado: estBat
+    }
+  ];
+
+  grid.innerHTML = metricasHTML.map(m => `
+    <div class="tarjeta-entorno">
+      <div class="tarjeta-entorno-header">
+        <span>${m.icono} ${m.titulo}</span>
+        <span class="entorno-tag-status" style="background-color:${m.estado.c}; color:${m.estado.t};">
+          ${m.estado.txt}
+        </span>
+      </div>
+      <div class="tarjeta-entorno-valor-box">
+        <span class="tarjeta-entorno-val">${m.valor}</span>
+        <span class="tarjeta-entorno-unidad">${m.unidad}</span>
+      </div>
+      <div class="tarjeta-entorno-footer">
+        <span style="color:var(--texto-suave);">${m.referencia}</span>
+      </div>
+    </div>
+  `).join("");
+
+  const colorPulso = maxNivel === 2 ? "#FF1744" : (maxNivel === 1 ? "#FFC107" : "#00E676");
+
+  if (esNave) {
+    svgContenedor.innerHTML = `
+      <svg viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="1" fill="#FFFFFF" opacity="0.6"/>
+        <circle cx="280" cy="24" r="1.2" fill="#90CAF9" opacity="0.8"/>
+        <circle cx="40" cy="110" r="1" fill="#FFFFFF" opacity="0.5"/>
+        <circle cx="300" cy="108" r="1.5" fill="#FFFFFF" opacity="0.7"/>
+
+        <rect x="25" y="52" width="60" height="26" rx="2" fill="#0D47A1" stroke="#42A5F5" stroke-width="1.5"/>
+        <line x1="45" y1="52" x2="45" y2="78" stroke="#90CAF9" stroke-width="1"/>
+        <line x1="65" y1="52" x2="65" y2="78" stroke="#90CAF9" stroke-width="1"/>
+        <line x1="25" y1="65" x2="85" y2="65" stroke="#90CAF9" stroke-width="1"/>
+        <rect x="85" y="62" width="15" height="6" fill="#78909C"/>
+
+        <rect x="100" y="44" width="55" height="42" rx="3" fill="#37474F" stroke="#78909C" stroke-width="2"/>
+        <line x1="120" y1="44" x2="120" y2="86" stroke="#546E7A" stroke-width="1.5"/>
+        <polygon points="100,52 88,48 88,82 100,78" fill="#263238" stroke="#455A64" stroke-width="1.5"/>
+
+        <polygon points="155,42 205,53 205,77 155,88" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+        <circle cx="178" cy="65" r="6" fill="#0288D1" stroke="#E1F5FE" stroke-width="1.5"/>
+
+        <rect x="205" y="59" width="14" height="12" rx="2" fill="#455A64" stroke="#90A4AE" stroke-width="1.5"/>
+        <line x1="219" y1="65" x2="235" y2="65" stroke="#90CAF9" stroke-width="2"/>
+        <circle cx="236" cy="65" r="3" fill="#64B5F6"/>
+
+        <rect x="118" y="10" width="22" height="34" rx="2" fill="#0D47A1" stroke="#42A5F5" stroke-width="1.5"/>
+        <line x1="118" y1="27" x2="140" y2="27" stroke="#90CAF9" stroke-width="1"/>
+        <rect x="118" y="86" width="22" height="34" rx="2" fill="#0D47A1" stroke="#42A5F5" stroke-width="1.5"/>
+        <line x1="118" y1="103" x2="140" y2="103" stroke="#90CAF9" stroke-width="1"/>
+
+        <circle cx="178" cy="65" r="10" fill="none" stroke="${colorPulso}" stroke-width="2.5">
+          <animate attributeName="r" values="8;16;8" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.9;0.1;0.9" dur="2s" repeatCount="indefinite"/>
+        </circle>
+
+        <text x="75" y="124" font-family="monospace" font-size="10" font-weight="bold" fill="#B0BEC5">
+          VEHÍCULO ESPACIAL • ECLSS ACTIVO
+        </text>
+      </svg>
+    `;
+  } else {
+    svgContenedor.innerHTML = `
+      <svg viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="105" x2="305" y2="105" stroke="#8D6E63" stroke-width="2" stroke-dasharray="6,4"/>
+        <ellipse cx="60" cy="112" rx="12" ry="2" fill="#5D4037" opacity="0.6"/>
+        <ellipse cx="160" cy="112" rx="12" ry="2" fill="#5D4037" opacity="0.6"/>
+        <ellipse cx="260" cy="112" rx="12" ry="2" fill="#5D4037" opacity="0.6"/>
+
+        <line x1="60" y1="92" x2="120" y2="75" stroke="#78909C" stroke-width="3"/>
+        <line x1="120" y1="75" x2="160" y2="92" stroke="#78909C" stroke-width="3"/>
+        <line x1="160" y1="75" x2="260" y2="92" stroke="#78909C" stroke-width="3"/>
+
+        <circle cx="60" cy="94" r="13" fill="#263238" stroke="#90A4AE" stroke-width="2"/>
+        <circle cx="60" cy="94" r="5" fill="#455A64"/>
+        <circle cx="160" cy="94" r="13" fill="#263238" stroke="#90A4AE" stroke-width="2"/>
+        <circle cx="160" cy="94" r="5" fill="#455A64"/>
+        <circle cx="260" cy="94" r="13" fill="#263238" stroke="#90A4AE" stroke-width="2"/>
+        <circle cx="260" cy="94" r="5" fill="#455A64"/>
+
+        <path d="M 80,75 L 80,45 Q 80,30 100,28 L 210,28 Q 235,30 250,55 L 250,75 Z" fill="#ECEFF1" stroke="#90A4AE" stroke-width="2"/>
+        <path d="M 195,34 L 235,46 L 235,65 L 195,65 Z" fill="#FFD54F" fill-opacity="0.75" stroke="#FFA000" stroke-width="1.5"/>
+
+        <rect x="55" y="42" width="25" height="28" rx="2" fill="#37474F" stroke="#78909C" stroke-width="1.5"/>
+        <line x1="60" y1="48" x2="75" y2="48" stroke="#FF5722" stroke-width="1.5"/>
+        <line x1="60" y1="56" x2="75" y2="56" stroke="#FF5722" stroke-width="1.5"/>
+
+        <line x1="120" y1="28" x2="115" y2="12" stroke="#90A4AE" stroke-width="2"/>
+        <ellipse cx="112" cy="10" rx="9" ry="5" fill="#B0BEC5" stroke="#FFFFFF" stroke-width="1" transform="rotate(-20 112 10)"/>
+
+        <circle cx="215" cy="55" r="8" fill="none" stroke="${colorPulso}" stroke-width="2">
+          <animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.9;0.2;0.9" dur="2s" repeatCount="indefinite"/>
+        </circle>
+
+        <text x="65" y="124" font-family="monospace" font-size="10" font-weight="bold" fill="#B0BEC5">
+          ROVER PRESURIZADO • TRACCIÓN 6X6
+        </text>
+      </svg>
+    `;
   }
 }
 
